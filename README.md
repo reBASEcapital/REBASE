@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.com/ampleforth/uFragments.svg?token=xxNsLhLrTiyG3pc78i5v&branch=master)](https://travis-ci.com/ampleforth/uFragments)&nbsp;&nbsp;[![Coverage Status](https://coveralls.io/repos/github/frgprotocol/uFragments/badge.svg?branch=master&t=GiWi8p)](https://coveralls.io/github/frgprotocol/uFragments?branch=master)
 
-reB∆SE, pronounced "rebase" is a decentralized elastic supply protocol. It is forked from Ampleforth which is was codenamed "UFragments". It maintains a stable unit price by adjusting supply directly to and from wallet holders. You can read the [whitepaper](https://www.ampleforth.org/paper/) for the motivation and a complete description of the protocol.
+reB∆SE, pronounced "rebase" is a decentralized elastic supply protocol. It is forked from Ampleforth which is was codenamed "UFragments". It maintains a stable unit price by adjusting supply directly to and from wallet holders.
 
 This repository is a collection of smart contracts that implement the reB∆SE protocol on the Ethereum blockchain.
 
