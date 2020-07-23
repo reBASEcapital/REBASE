@@ -4,7 +4,7 @@
         <img src="https://img.shields.io/discord/734242135523459103?logo=discord"
             alt="chat on Discord"></a>
 
-[![Build Status](https://travis-ci.com/ampleforth/uFragments.svg?token=xxNsLhLrTiyG3pc78i5v&branch=master)](https://travis-ci.com/ampleforth/uFragments)&nbsp;&nbsp;[![Coverage Status](https://coveralls.io/repos/github/frgprotocol/uFragments/badge.svg?branch=master&t=GiWi8p)](https://coveralls.io/github/frgprotocol/uFragments?branch=master)
+<!-- [![Build Status](https://travis-ci.com/ampleforth/uFragments.svg?token=xxNsLhLrTiyG3pc78i5v&branch=master)](https://travis-ci.com/ampleforth/uFragments)&nbsp;&nbsp;[![Coverage Status](https://coveralls.io/repos/github/frgprotocol/uFragments/badge.svg?branch=master&t=GiWi8p)](https://coveralls.io/github/frgprotocol/uFragments?branch=master) -->
 
 reB∆SE, pronounced "rebase" is a decentralized elastic supply protocol. It is forked from Ampleforth which operates under the codename "UFragments". This monetary protocol maintains a stable unit price by adjusting supply directly to and from wallet holders.
 
