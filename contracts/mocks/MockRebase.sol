@@ -3,7 +3,7 @@ pragma solidity 0.4.24;
 import "./Mock.sol";
 
 
-contract MockUFragments is Mock {
+contract MockRebase is Mock {
     uint256 private _supply;
 
     // Methods to mock data on the chain
@@ -18,7 +18,7 @@ contract MockUFragments is Mock {
         public
         returns (uint256)
     {
-        emit FunctionCalled("UFragments", "rebase", msg.sender);
+        emit FunctionCalled("Rebase", "rebase", msg.sender);
         uint256[] memory uintVals = new uint256[](1);
         uintVals[0] = epoch;
         int256[] memory intVals = new int256[](1);

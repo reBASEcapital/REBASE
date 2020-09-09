@@ -5,7 +5,7 @@ import "openzeppelin-eth/contracts/ownership/Ownable.sol";
 
 import "./lib/SafeMathInt.sol";
 import "./lib/UInt256Lib.sol";
-import "./UFragments.sol";
+import "./Rebase.sol";
 
 
 interface IOracle {
@@ -14,15 +14,15 @@ interface IOracle {
 
 
 /**
- * @title uFragments Monetary Supply Policy
- * @dev This is an implementation of the uFragments Ideal Money protocol.
- *      uFragments operates symmetrically on expansion and contraction. It will both split and
+ * @title Rebase Monetary Supply Policy
+ * @dev This is an implementation of the Rebase Ideal Money protocol.
+ *      Rebase operates symmetrically on expansion and contraction. It will both split and
  *      combine coins to maintain a stable unit price.
  *
- *      This component regulates the token supply of the uFragments ERC20 token in response to
+ *      This component regulates the token supply of the Rebase ERC20 token in response to
  *      market oracles.
  */
-contract UFragmentsPolicy is Ownable {
+contract RebasePolicy is Ownable {
     using SafeMath for uint256;
     using SafeMathInt for int256;
     using UInt256Lib for uint256;
@@ -35,13 +35,13 @@ contract UFragmentsPolicy is Ownable {
         uint256 timestampSec
     );
 
-    UFragments public uFrags;
+    Rebase public uFrags;
 
     // Provides the current CPI, as an 18 decimal fixed point number.
     IOracle public cpiOracle;
 
     // Market oracle provides the token/USD exchange rate as an 18 decimal fixed point number.
-    // (eg) An oracle value of 1.5e18 it would mean 1 Ample is trading for $1.50.
+    // (eg) An oracle value of 1.5e18 it would mean 1 Rebase is trading for $1.50.
     IOracle public marketOracle;
 
     // CPI value at the time of launch, as an 18 decimal fixed point number.
@@ -233,7 +233,7 @@ contract UFragmentsPolicy is Ownable {
      *      It is called at the time of contract creation to invoke parent class initializers and
      *      initialize the contract's state variables.
      */
-    function initialize(address owner_, UFragments uFrags_, uint256 baseCpi_)
+    function initialize(address owner_, Rebase uFrags_, uint256 baseCpi_)
         public
         initializer
     {

@@ -22,11 +22,11 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   SOFTWARE.
 
-  This file tests if the UFragments contract confirms to the ERC20 specification.
+  This file tests if the Rebase contract confirms to the ERC20 specification.
   These test cases are inspired from OpenZepplin's ERC20 unit test.
   https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/test/token/ERC20/ERC20.test.js
 */
-const UFragments = artifacts.require('UFragments.sol');
+const Rebase = artifacts.require('Rebase.sol');
 const _require = require('app-root-path').require;
 const BlockchainCaller = _require('/util/blockchain_caller');
 const chain = new BlockchainCaller(web3);
@@ -42,7 +42,7 @@ function toTokenDenomination (x) {
   return new BigNumber(x).mul(10 ** DECIMALS);
 }
 const DECIMALS = 9;
-const INITIAL_SUPPLY = toTokenDenomination(50 * 10 ** 6);
+const INITIAL_SUPPLY = toTokenDenomination(3.025 * 10 ** 6);
 const transferAmount = toTokenDenomination(10);
 const unitTokenAmount = toTokenDenomination(1);
 const overdraftAmount = INITIAL_SUPPLY.plus(unitTokenAmount);
@@ -56,15 +56,15 @@ async function setupContractAndAccounts (accounts) {
   owner = accounts[0];
   anotherAccount = accounts[8];
   recipient = accounts[9];
-  token = await UFragments.new();
+  token = await Rebase.new();
   await token.sendTransaction({
     data: encodeCall('initialize', ['address'], [owner]),
     from: owner
   });
 }
 
-contract('UFragments:ERC20', function (accounts) {
-  before('setup UFragments contract', async function () {
+contract('Rebase:ERC20', function (accounts) {
+  before('setup Rebase contract', async function () {
     await setupContractAndAccounts(accounts);
   });
 
@@ -89,8 +89,8 @@ contract('UFragments:ERC20', function (accounts) {
   });
 });
 
-contract('UFragments:ERC20:transfer', function (accounts) {
-  before('setup UFragments contract', async function () {
+contract('Rebase:ERC20:transfer', function (accounts) {
+  before('setup Rebase contract', async function () {
     await setupContractAndAccounts(accounts);
   });
 
@@ -132,8 +132,8 @@ contract('UFragments:ERC20:transfer', function (accounts) {
   });
 });
 
-contract('UFragments:ERC20:transferFrom', function (accounts) {
-  before('setup UFragments contract', async function () {
+contract('Rebase:ERC20:transferFrom', function (accounts) {
+  before('setup Rebase contract', async function () {
     await setupContractAndAccounts(accounts);
   });
 
@@ -195,8 +195,8 @@ contract('UFragments:ERC20:transferFrom', function (accounts) {
   });
 });
 
-contract('UFragments:ERC20:approve', function (accounts) {
-  before('setup UFragments contract', async function () {
+contract('Rebase:ERC20:approve', function (accounts) {
+  before('setup Rebase contract', async function () {
     await setupContractAndAccounts(accounts);
   });
 
@@ -283,8 +283,8 @@ contract('UFragments:ERC20:approve', function (accounts) {
   });
 });
 
-contract('UFragments:ERC20:increaseAllowance', function (accounts) {
-  before('setup UFragments contract', async function () {
+contract('Rebase:ERC20:increaseAllowance', function (accounts) {
+  before('setup Rebase contract', async function () {
     await setupContractAndAccounts(accounts);
   });
 
@@ -370,8 +370,8 @@ contract('UFragments:ERC20:increaseAllowance', function (accounts) {
   });
 });
 
-contract('UFragments:ERC20:decreaseAllowance', function (accounts) {
-  before('setup UFragments contract', async function () {
+contract('Rebase:ERC20:decreaseAllowance', function (accounts) {
+  before('setup Rebase contract', async function () {
     await setupContractAndAccounts(accounts);
   });
 

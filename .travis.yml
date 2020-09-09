@@ -19,5 +19,5 @@ after_success:
   - cat coverage/lcov.info | npx coveralls
 notifications:
   email:
-    - dev-support@ampleforth.org
+    - dev-support@rebase.capital
   slack: fragmentsorg:2bN0L0FCZZ0illBRyPucRZkV
