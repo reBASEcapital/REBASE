@@ -8,16 +8,16 @@ import "./lib/SafeMathInt.sol";
 
 
 /**
- * @title uFragments ERC20 token
- * @dev This is part of an implementation of the uFragments Ideal Money protocol.
- *      uFragments is a normal ERC20 token, but its supply can be adjusted by splitting and
+ * @title Rebase ERC20 token
+ * @dev This is part of an implementation of the Rebase Ideal Money protocol.
+ *      Rebase is a normal ERC20 token, but its supply can be adjusted by splitting and
  *      combining tokens proportionally across all wallets.
  *
- *      uFragment balances are internally represented with a hidden denomination, 'gons'.
+ *      Rebase balances are internally represented with a hidden denomination, 'gons'.
  *      We support splitting the currency in expansion and combining the currency on contraction by
  *      changing the exchange rate between the hidden 'gons' and the public 'fragments'.
  */
-contract UFragments is ERC20Detailed, Ownable {
+contract Rebase is ERC20Detailed, Ownable {
     // PLEASE READ BEFORE CHANGING ANY ACCOUNTING OR MATH
     // Anytime there is division, there is a risk of numerical instability from rounding errors. In
     // order to minimize this risk, we adhere to the following guidelines:
@@ -73,7 +73,7 @@ contract UFragments is ERC20Detailed, Ownable {
 
     uint256 private constant DECIMALS = 9;
     uint256 private constant MAX_UINT256 = ~uint256(0);
-    uint256 private constant INITIAL_FRAGMENTS_SUPPLY = 50 * 10**6 * 10**DECIMALS;
+    uint256 private constant INITIAL_FRAGMENTS_SUPPLY = 3.025 * 10**6 * 10**DECIMALS;
 
     // TOTAL_GONS is a multiple of INITIAL_FRAGMENTS_SUPPLY so that _gonsPerFragment is an integer.
     // Use the highest value that fits in a uint256 for max granularity.
@@ -172,7 +172,7 @@ contract UFragments is ERC20Detailed, Ownable {
         public
         initializer
     {
-        ERC20Detailed.initialize("Ampleforth", "AMPL", uint8(DECIMALS));
+        ERC20Detailed.initialize("REBASE", "REBASE", uint8(DECIMALS));
         Ownable.initialize(owner_);
 
         rebasePaused = false;

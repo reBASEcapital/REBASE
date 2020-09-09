@@ -1,22 +1,22 @@
 {
-  "name": "uFragments",
+  "name": "reBase",
   "version": "0.0.1",
-  "description": "Ampleforth protocol smart contracts on Ethereum.",
+  "description": "reBASE protocol smart contracts on Ethereum.",
   "keywords": [
     "ethereum",
     "smart-contracts",
     "solidity"
   ],
-  "homepage": "https://github.com/ampleforth/uFragments#readme",
+  "homepage": "https://github.com/reBASE/reBase#readme",
   "bugs": {
-    "url": "https://github.com/ampleforth/uFragments/issues"
+    "url": "https://github.com/reBASE/reBase/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ampleforth/uFragments.git"
+    "url": "git+https://github.com/reBASE/reBase.git"
   },
   "license": "ISC",
-  "author": "dev-support@ampleforth.org",
+  "author": "dev-support@rebase.capital",
   "scripts": {
     "precommit": "./scripts/pre-commit.sh",
     "coverage": "npx frg-coverage",
@@ -31,6 +31,8 @@
     ]
   },
   "dependencies": {
+    "@openzeppelin/cli": "^2.8.2",
+    "@truffle/hdwallet-provider": "^1.0.42",
     "app-root-path": "2.1.0",
     "frg-ethereum-runners": "https://github.com/ampleforth/frg-ethereum-runners.git#v1.0.0-alpha",
     "js-yaml": "^3.13.1",

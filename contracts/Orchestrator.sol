@@ -2,7 +2,7 @@ pragma solidity 0.4.24;
 
 import "openzeppelin-eth/contracts/ownership/Ownable.sol";
 
-import "./UFragmentsPolicy.sol";
+import "./RebasePolicy.sol";
 
 
 /**
@@ -23,14 +23,14 @@ contract Orchestrator is Ownable {
     // Stable ordering is not guaranteed.
     Transaction[] public transactions;
 
-    UFragmentsPolicy public policy;
+    RebasePolicy public policy;
 
     /**
-     * @param policy_ Address of the UFragments policy.
+     * @param policy_ Address of the Rebase policy.
      */
     constructor(address policy_) public {
         Ownable.initialize(msg.sender);
-        policy = UFragmentsPolicy(policy_);
+        policy = RebasePolicy(policy_);
     }
 
     /**
