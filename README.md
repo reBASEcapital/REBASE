@@ -9,7 +9,7 @@ reB∆SE, pronounced "rebase" is a decentralized elastic supply protocol. It is 
 This repository is a collection of smart contracts that implement the reB∆SE protocol on the Ethereum blockchain.
 
 The official contract addresses are:
-- ERC-20 Token:  TBD
+- ERC-20 Token:  [0x4208d8d500b1643dca98dd27ba6c0060bca311c5](https://etherscan.io/address/0x4208d8d500b1643dca98dd27ba6c0060bca311c5)
 - Supply Policy: TBD
 - Market Oracle: TBD
 - CPI Oracle:    TBD
