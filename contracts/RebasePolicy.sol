@@ -35,7 +35,7 @@ contract RebasePolicy is Ownable {
         uint256 timestampSec
     );
 
-    Rebase public uFrags;
+    Rebase public rebaseC;
 
     // Provides the current CPI, as an 18 decimal fixed point number.
     IOracle public cpiOracle;
@@ -43,6 +43,13 @@ contract RebasePolicy is Ownable {
     // Market oracle provides the token/USD exchange rate as an 18 decimal fixed point number.
     // (eg) An oracle value of 1.5e18 it would mean 1 Rebase is trading for $1.50.
     IOracle public marketOracle;
+
+
+    // market value at the time of launch, as an 18 decimal fixed point number.
+    uint256 public marketValue;
+
+    // cpi value at the time of launch, as an 18 decimal fixed point number.
+    uint256 public cpiValue;
 
     // CPI value at the time of launch, as an 18 decimal fixed point number.
     uint256 private baseCpi;
@@ -110,16 +117,17 @@ contract RebasePolicy is Ownable {
         epoch = epoch.add(1);
 
         uint256 cpi;
-        bool cpiValid;
-        (cpi, cpiValid) = cpiOracle.getData();
-        require(cpiValid);
-
+//        bool cpiValid;
+//        (cpi, cpiValid) = cpiOracle.getData();
+//        require(cpiValid);
+        cpi = cpiValue;
         uint256 targetRate = cpi.mul(10 ** DECIMALS).div(baseCpi);
 
         uint256 exchangeRate;
-        bool rateValid;
-        (exchangeRate, rateValid) = marketOracle.getData();
-        require(rateValid);
+//        bool rateValid;
+//        (exchangeRate, rateValid) = marketOracle.getData();
+//        require(rateValid);
+        exchangeRate = marketValue;
 
         if (exchangeRate > MAX_RATE) {
             exchangeRate = MAX_RATE;
@@ -130,11 +138,11 @@ contract RebasePolicy is Ownable {
         // Apply the Dampening factor.
         supplyDelta = supplyDelta.div(rebaseLag.toInt256Safe());
 
-        if (supplyDelta > 0 && uFrags.totalSupply().add(uint256(supplyDelta)) > MAX_SUPPLY) {
-            supplyDelta = (MAX_SUPPLY.sub(uFrags.totalSupply())).toInt256Safe();
+        if (supplyDelta > 0 && rebaseC.totalSupply().add(uint256(supplyDelta)) > MAX_SUPPLY) {
+            supplyDelta = (MAX_SUPPLY.sub(rebaseC.totalSupply())).toInt256Safe();
         }
 
-        uint256 supplyAfterRebase = uFrags.rebase(epoch, supplyDelta);
+        uint256 supplyAfterRebase = rebaseC.rebase(epoch, supplyDelta);
         assert(supplyAfterRebase <= MAX_SUPPLY);
         emit LogRebase(epoch, exchangeRate, cpi, supplyDelta, now);
     }
@@ -201,6 +209,22 @@ contract RebasePolicy is Ownable {
         rebaseLag = rebaseLag_;
     }
 
+    function setMarketValue(uint256 marketValue_)
+    external
+    onlyOwner
+    {
+        require(marketValue_ > 0);
+        marketValue = marketValue_;
+    }
+
+    function setCpiValue(uint256 cpiValue_)
+    external
+    onlyOwner
+    {
+        require(cpiValue_ > 0);
+        cpiValue = cpiValue_;
+    }
+
     /**
      * @notice Sets the parameters which control the timing and frequency of
      *         rebase operations.
@@ -233,7 +257,7 @@ contract RebasePolicy is Ownable {
      *      It is called at the time of contract creation to invoke parent class initializers and
      *      initialize the contract's state variables.
      */
-    function initialize(address owner_, Rebase uFrags_, uint256 baseCpi_)
+    function initialize(address owner_, Rebase rebase_, uint256 baseCpi_)
         public
         initializer
     {
@@ -249,7 +273,7 @@ contract RebasePolicy is Ownable {
         lastRebaseTimestampSec = 0;
         epoch = 0;
 
-        uFrags = uFrags_;
+        rebaseC = rebase_;
         baseCpi = baseCpi_;
     }
 
@@ -279,7 +303,7 @@ contract RebasePolicy is Ownable {
 
         // supplyDelta = totalSupply * (rate - targetRate) / targetRate
         int256 targetRateSigned = targetRate.toInt256Safe();
-        return uFrags.totalSupply().toInt256Safe()
+        return rebaseC.totalSupply().toInt256Safe()
             .mul(rate.toInt256Safe().sub(targetRateSigned))
             .div(targetRateSigned);
     }

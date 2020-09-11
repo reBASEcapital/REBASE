@@ -1,9 +1,15 @@
-const connectionConfig = require('frg-ethereum-runners/config/network_config.json');
+const HDWalletProvider = require('@truffle/hdwallet-provider');
+require('dotenv').config();
+console.log(process.env.MNENOMIC);
 module.exports = {
   networks: {
-    ganacheUnitTest: connectionConfig.ganacheUnitTest,
-    gethUnitTest: connectionConfig.gethUnitTest,
-    testrpcCoverage: connectionConfig.testrpcCoverage,
+    ganacheUnitTest: {},
+    ropsten: {
+      provider: () => new HDWalletProvider(process.env.MNENOMIC, 'https://ropsten.infura.io/v3/' + process.env.INFURA_API_KEY),
+      network_id: 3,
+      gas: 3000000,
+      gasPrice: 10000000000
+    }
   },
   compilers: {
     solc: {

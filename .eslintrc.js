@@ -48,7 +48,7 @@ module.exports = {
               "addr", "conf", "cmd",
 
               // project-specific
-              "rebase", "gons", "frg", "rng", "blockchain", "minlot",
+              "rebase", "gons", "frg", "rng", "blockchain", "minlot", "dotenv", "ropsten",
               "redemptions", "rebased", "ganache", "ethclient",
               "bytecode", "Binance", "ethereum", "opcode", "cpi", "ampleforth", "orchestrator", "openzeppelin",
 

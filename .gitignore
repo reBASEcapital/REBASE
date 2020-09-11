@@ -20,5 +20,8 @@ scDebugLog
 coverage.json
 coverage/
 coverageEnv/
-
+*.env
+.env
+.idea
+.idea/*
 .openzeppelin/.session

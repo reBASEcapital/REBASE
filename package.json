@@ -34,6 +34,7 @@
     "@openzeppelin/cli": "^2.8.2",
     "@truffle/hdwallet-provider": "^1.0.42",
     "app-root-path": "2.1.0",
+    "dotenv": "^8.2.0",
     "frg-ethereum-runners": "https://github.com/ampleforth/frg-ethereum-runners.git#v1.0.0-alpha",
     "js-yaml": "^3.13.1",
     "openzeppelin-eth": "2.0.2",
