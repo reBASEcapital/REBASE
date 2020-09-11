@@ -1,6 +1,5 @@
 const HDWalletProvider = require('@truffle/hdwallet-provider');
 require('dotenv').config();
-console.log(process.env.MNENOMIC);
 module.exports = {
   networks: {
     ganacheUnitTest: {},

@@ -1,7 +1,9 @@
 {
   "manifestVersion": "2.2",
   "contracts": {
-    "Rebase": "Rebase"
+    "Rebase": "Rebase",
+    "RebasePolicy": "RebasePolicy",
+    "Orchestrator": "Orchestrator"
   },
   "dependencies": {},
   "name": "reBase",

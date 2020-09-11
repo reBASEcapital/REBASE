@@ -183,6 +183,198 @@
         "hasInitialValuesInDeclarations": false,
         "uninitializedBaseContracts": []
       }
+    },
+    "RebasePolicy": {
+      "address": "0xfCEd7985A0B75F19F45EE7326e1cb6b401DE3C61",
+      "constructorCode": "608060405234801561001057600080fd5b5061195e806100206000396000f300",
+      "bodyBytecodeHash": "7d6662d07082aa794aeb6af1229b92008691ce075ad46d162de841cf09717cd4",
+      "localBytecodeHash": "a216f72e3e6ccca4dec279258f608ffcdd82832f8a0d0698c357e1db023ac0f3",
+      "deployedBytecodeHash": "a216f72e3e6ccca4dec279258f608ffcdd82832f8a0d0698c357e1db023ac0f3",
+      "types": {
+        "t_bool": {
+          "id": "t_bool",
+          "kind": "elementary",
+          "label": "bool"
+        },
+        "t_uint256": {
+          "id": "t_uint256",
+          "kind": "elementary",
+          "label": "uint256"
+        },
+        "t_array:50<t_uint256>": {
+          "id": "t_array:50<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "50",
+          "kind": "array",
+          "label": "uint256[50]"
+        },
+        "t_address": {
+          "id": "t_address",
+          "kind": "elementary",
+          "label": "address"
+        }
+      },
+      "storage": [
+        {
+          "contract": "Initializable",
+          "path": "zos-lib/contracts/Initializable.sol",
+          "label": "initialized",
+          "astId": 2586,
+          "type": "t_bool",
+          "src": "757:24:18"
+        },
+        {
+          "contract": "Initializable",
+          "path": "zos-lib/contracts/Initializable.sol",
+          "label": "initializing",
+          "astId": 2588,
+          "type": "t_bool",
+          "src": "876:25:18"
+        },
+        {
+          "contract": "Initializable",
+          "path": "zos-lib/contracts/Initializable.sol",
+          "label": "______gap",
+          "astId": 2637,
+          "type": "t_array:50<t_uint256>",
+          "src": "1891:29:18"
+        },
+        {
+          "contract": "Ownable",
+          "path": "openzeppelin-eth/contracts/ownership/Ownable.sol",
+          "label": "_owner",
+          "astId": 2340,
+          "type": "t_address",
+          "src": "301:22:15"
+        },
+        {
+          "contract": "Ownable",
+          "path": "openzeppelin-eth/contracts/ownership/Ownable.sol",
+          "label": "______gap",
+          "astId": 2445,
+          "type": "t_array:50<t_uint256>",
+          "src": "2057:29:15"
+        },
+        {
+          "contract": "RebasePolicy",
+          "path": "contracts/RebasePolicy.sol",
+          "label": "rebaseC",
+          "astId": 880,
+          "type": "t_address",
+          "src": "1013:21:2"
+        },
+        {
+          "contract": "RebasePolicy",
+          "path": "contracts/RebasePolicy.sol",
+          "label": "cpiOracle",
+          "astId": 882,
+          "type": "t_address",
+          "src": "1111:24:2"
+        },
+        {
+          "contract": "RebasePolicy",
+          "path": "contracts/RebasePolicy.sol",
+          "label": "marketOracle",
+          "astId": 884,
+          "type": "t_address",
+          "src": "1320:27:2"
+        },
+        {
+          "contract": "RebasePolicy",
+          "path": "contracts/RebasePolicy.sol",
+          "label": "marketValue",
+          "astId": 886,
+          "type": "t_uint256",
+          "src": "1435:26:2"
+        },
+        {
+          "contract": "RebasePolicy",
+          "path": "contracts/RebasePolicy.sol",
+          "label": "cpiValue",
+          "astId": 888,
+          "type": "t_uint256",
+          "src": "1545:23:2"
+        },
+        {
+          "contract": "RebasePolicy",
+          "path": "contracts/RebasePolicy.sol",
+          "label": "baseCpi",
+          "astId": 890,
+          "type": "t_uint256",
+          "src": "1652:23:2"
+        },
+        {
+          "contract": "RebasePolicy",
+          "path": "contracts/RebasePolicy.sol",
+          "label": "deviationThreshold",
+          "astId": 892,
+          "type": "t_uint256",
+          "src": "1982:33:2"
+        },
+        {
+          "contract": "RebasePolicy",
+          "path": "contracts/RebasePolicy.sol",
+          "label": "rebaseLag",
+          "astId": 894,
+          "type": "t_uint256",
+          "src": "2212:24:2"
+        },
+        {
+          "contract": "RebasePolicy",
+          "path": "contracts/RebasePolicy.sol",
+          "label": "minRebaseTimeIntervalSec",
+          "astId": 896,
+          "type": "t_uint256",
+          "src": "2312:39:2"
+        },
+        {
+          "contract": "RebasePolicy",
+          "path": "contracts/RebasePolicy.sol",
+          "label": "lastRebaseTimestampSec",
+          "astId": 898,
+          "type": "t_uint256",
+          "src": "2406:37:2"
+        },
+        {
+          "contract": "RebasePolicy",
+          "path": "contracts/RebasePolicy.sol",
+          "label": "rebaseWindowOffsetSec",
+          "astId": 900,
+          "type": "t_uint256",
+          "src": "2635:36:2"
+        },
+        {
+          "contract": "RebasePolicy",
+          "path": "contracts/RebasePolicy.sol",
+          "label": "rebaseWindowLengthSec",
+          "astId": 902,
+          "type": "t_uint256",
+          "src": "2775:36:2"
+        },
+        {
+          "contract": "RebasePolicy",
+          "path": "contracts/RebasePolicy.sol",
+          "label": "epoch",
+          "astId": 904,
+          "type": "t_uint256",
+          "src": "2869:20:2"
+        },
+        {
+          "contract": "RebasePolicy",
+          "path": "contracts/RebasePolicy.sol",
+          "label": "orchestrator",
+          "astId": 929,
+          "type": "t_address",
+          "src": "3353:27:2"
+        }
+      ],
+      "warnings": {
+        "hasConstructor": false,
+        "hasSelfDestruct": false,
+        "hasDelegateCall": false,
+        "hasInitialValuesInDeclarations": false,
+        "uninitializedBaseContracts": []
+      }
     }
   },
   "solidityLibs": {},
@@ -194,6 +386,22 @@
         "implementation": "0xAad80d3D89A2946F8f549169d66BdBac08555104",
         "admin": "0xf672A8c2aBBcc458Ba490c9f41DB715a6D4B5d8e",
         "kind": "Upgradeable"
+      }
+    ],
+    "reBase/RebasePolicy": [
+      {
+        "address": "0x3CcE39269b01c1CeBdaaeC61A7Cf96336b4F093d",
+        "version": "0.0.1",
+        "implementation": "0xfCEd7985A0B75F19F45EE7326e1cb6b401DE3C61",
+        "admin": "0xf672A8c2aBBcc458Ba490c9f41DB715a6D4B5d8e",
+        "kind": "Upgradeable"
+      }
+    ],
+    "reBase/Orchestrator": [
+      {
+        "address": "0xa8baf513Fc70b3A3078CB142ECE33Cfe08708a36",
+        "kind": "NonProxy",
+        "bytecodeHash": "16194cb9a4bad565d57000abc21ce1d78ec51efe11007d248ba05bc4ab613610"
       }
     ]
   },
