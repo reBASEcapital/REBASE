@@ -55,8 +55,8 @@ async function setupContractsWithOpenRebaseWindow () {
 }
 
 async function mockExternalData (rate, cpi, uFragSupply, rateValidity = true, cpiValidity = true) {
-  await reBasePolicy.setMarketValue(rate)
-  await reBasePolicy.setCpiValue(cpi)
+  await reBasePolicy.setMarketValue(rate);
+  await reBasePolicy.setCpiValue(cpi);
   await mockMarketOracle.storeData(rate);
   await mockMarketOracle.storeValidity(rateValidity);
   await mockCpiOracle.storeData(cpi);
