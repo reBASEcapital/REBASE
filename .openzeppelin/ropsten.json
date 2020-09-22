@@ -375,6 +375,154 @@
         "hasInitialValuesInDeclarations": false,
         "uninitializedBaseContracts": []
       }
+    },
+    "Orchestrator": {
+      "address": "0xB3fdFB6A00c718C98751C78E44f6f53B13f774F2",
+      "constructorCode": "608060405234801561001057600080fd5b506118e6806100206000396000f300",
+      "bodyBytecodeHash": "5188306075680c00f8aa0723980a27d2b135a7d5d273231bb6c42b34d137fa56",
+      "localBytecodeHash": "5130123b670c1faa7fbda3fede77ba44b8fa1ccee2eb2e30e4d857d9a5e9f560",
+      "deployedBytecodeHash": "5130123b670c1faa7fbda3fede77ba44b8fa1ccee2eb2e30e4d857d9a5e9f560",
+      "types": {
+        "t_bool": {
+          "id": "t_bool",
+          "kind": "elementary",
+          "label": "bool"
+        },
+        "t_uint256": {
+          "id": "t_uint256",
+          "kind": "elementary",
+          "label": "uint256"
+        },
+        "t_array:50<t_uint256>": {
+          "id": "t_array:50<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "50",
+          "kind": "array",
+          "label": "uint256[50]"
+        },
+        "t_address": {
+          "id": "t_address",
+          "kind": "elementary",
+          "label": "address"
+        },
+        "t_struct<Orchestrator.Transaction>": {
+          "id": "t_struct<Orchestrator.Transaction>",
+          "kind": "struct",
+          "label": "Orchestrator.Transaction",
+          "members": [
+            {
+              "label": "enabled",
+              "astId": 8,
+              "type": "t_bool",
+              "src": "387:12:0"
+            },
+            {
+              "label": "destination",
+              "astId": 10,
+              "type": "t_address",
+              "src": "409:19:0"
+            },
+            {
+              "label": "data",
+              "astId": 12,
+              "type": "t_bytes",
+              "src": "438:10:0"
+            }
+          ]
+        },
+        "t_bytes": {
+          "id": "t_bytes",
+          "kind": "elementary",
+          "label": "bytes"
+        },
+        "t_array:dyn<t_struct<Orchestrator.Transaction>>": {
+          "id": "t_array:dyn<t_struct<Orchestrator.Transaction>>",
+          "valueType": "t_struct<Orchestrator.Transaction>",
+          "length": "dyn",
+          "kind": "array",
+          "label": "Orchestrator.Transaction[]"
+        },
+        "t_array:dyn<t_address>": {
+          "id": "t_array:dyn<t_address>",
+          "valueType": "t_address",
+          "length": "dyn",
+          "kind": "array",
+          "label": "address[]"
+        }
+      },
+      "storage": [
+        {
+          "contract": "Initializable",
+          "path": "zos-lib/contracts/Initializable.sol",
+          "label": "initialized",
+          "astId": 2910,
+          "type": "t_bool",
+          "src": "757:24:19"
+        },
+        {
+          "contract": "Initializable",
+          "path": "zos-lib/contracts/Initializable.sol",
+          "label": "initializing",
+          "astId": 2912,
+          "type": "t_bool",
+          "src": "876:25:19"
+        },
+        {
+          "contract": "Initializable",
+          "path": "zos-lib/contracts/Initializable.sol",
+          "label": "______gap",
+          "astId": 2961,
+          "type": "t_array:50<t_uint256>",
+          "src": "1891:29:19"
+        },
+        {
+          "contract": "Ownable",
+          "path": "openzeppelin-eth/contracts/ownership/Ownable.sol",
+          "label": "_owner",
+          "astId": 2664,
+          "type": "t_address",
+          "src": "301:22:16"
+        },
+        {
+          "contract": "Ownable",
+          "path": "openzeppelin-eth/contracts/ownership/Ownable.sol",
+          "label": "______gap",
+          "astId": 2769,
+          "type": "t_array:50<t_uint256>",
+          "src": "2057:29:16"
+        },
+        {
+          "contract": "Orchestrator",
+          "path": "contracts/Orchestrator.sol",
+          "label": "transactions",
+          "astId": 24,
+          "type": "t_array:dyn<t_struct<Orchestrator.Transaction>>",
+          "src": "586:33:0"
+        },
+        {
+          "contract": "Orchestrator",
+          "path": "contracts/Orchestrator.sol",
+          "label": "policy",
+          "astId": 26,
+          "type": "t_address",
+          "src": "626:26:0"
+        },
+        {
+          "contract": "Orchestrator",
+          "path": "contracts/Orchestrator.sol",
+          "label": "uniSwapPairs",
+          "astId": 29,
+          "type": "t_array:dyn<t_address>",
+          "src": "659:33:0"
+        }
+      ],
+      "warnings": {
+        "hasConstructor": false,
+        "hasSelfDestruct": false,
+        "hasDelegateCall": false,
+        "hasInitialValuesInDeclarations": false,
+        "uninitializedBaseContracts": []
+      }
     }
   },
   "solidityLibs": {},
@@ -402,6 +550,13 @@
         "address": "0xa8baf513Fc70b3A3078CB142ECE33Cfe08708a36",
         "kind": "NonProxy",
         "bytecodeHash": "16194cb9a4bad565d57000abc21ce1d78ec51efe11007d248ba05bc4ab613610"
+      },
+      {
+        "address": "0x948cA83F305121334eF5b634ABda6e282028f737",
+        "version": "0.0.1",
+        "implementation": "0xB3fdFB6A00c718C98751C78E44f6f53B13f774F2",
+        "admin": "0xf672A8c2aBBcc458Ba490c9f41DB715a6D4B5d8e",
+        "kind": "Upgradeable"
       }
     ]
   },

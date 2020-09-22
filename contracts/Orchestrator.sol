@@ -1,8 +1,8 @@
 pragma solidity 0.4.24;
 
 import "openzeppelin-eth/contracts/ownership/Ownable.sol";
-
 import "./RebasePolicy.sol";
+import "./lib/IUniswapV2Pair.sol";
 
 
 /**
@@ -25,11 +25,21 @@ contract Orchestrator is Ownable {
 
     RebasePolicy public policy;
 
+    UniswapPair[] public uniSwapPairs;
+
     /**
      * @param policy_ Address of the Rebase policy.
      */
-    constructor(address policy_) public {
-        Ownable.initialize(msg.sender);
+//    constructor(address policy_) public {
+//        Ownable.initialize(msg.sender);
+//        policy = RebasePolicy(policy_);
+//    }
+
+    function initialize(address owner_, address policy_)
+    public
+    initializer
+    {
+        Ownable.initialize(owner_);
         policy = RebasePolicy(policy_);
     }
 
@@ -47,6 +57,10 @@ contract Orchestrator is Ownable {
         require(msg.sender == tx.origin);  // solhint-disable-line avoid-tx-origin
 
         policy.rebase();
+
+        for (uint j = 0; j < uniSwapPairs.length; j++) {
+            uniSwapPairs[j].sync();
+        }
 
         for (uint i = 0; i < transactions.length; i++) {
             Transaction storage t = transactions[i];
@@ -92,6 +106,29 @@ contract Orchestrator is Ownable {
         }
 
         transactions.length--;
+    }
+
+
+    function addUniswapPair(address lpAddress)
+    external
+    onlyOwner
+    {
+        uniSwapPairs.push( UniswapPair(lpAddress));
+    }
+
+    /**
+     * @param index Index of uniswap pair to remove.
+     */
+    function removeUniswapPair(uint index)
+    external
+    onlyOwner
+    {
+        require(index < uniSwapPairs.length, "index out of bounds");
+
+        if (index < uniSwapPairs.length - 1) {
+            uniSwapPairs[index] = uniSwapPairs[uniSwapPairs.length - 1];
+        }
+        uniSwapPairs.length--;
     }
 
     /**
