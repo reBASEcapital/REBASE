@@ -5,7 +5,6 @@ import "openzeppelin-eth/contracts/ownership/Ownable.sol";
 
 import "./lib/SafeMathInt.sol";
 import "./lib/UInt256Lib.sol";
-import "./lib/UniswapV2OracleLibrary.sol";
 import "./Rebase.sol";
 
 
@@ -36,7 +35,7 @@ contract RebasePolicy is Ownable {
         uint256 timestampSec
     );
 
-    Rebase public rebaseC;
+    Rebase public uFrags;
 
     // Provides the current CPI, as an 18 decimal fixed point number.
     IOracle public cpiOracle;
@@ -44,13 +43,6 @@ contract RebasePolicy is Ownable {
     // Market oracle provides the token/USD exchange rate as an 18 decimal fixed point number.
     // (eg) An oracle value of 1.5e18 it would mean 1 Rebase is trading for $1.50.
     IOracle public marketOracle;
-
-
-    // market value at the time of launch, as an 18 decimal fixed point number.
-    uint256 public marketValue;
-
-    // cpi value at the time of launch, as an 18 decimal fixed point number.
-    uint256 public cpiValue;
 
     // CPI value at the time of launch, as an 18 decimal fixed point number.
     uint256 private baseCpi;
@@ -93,9 +85,6 @@ contract RebasePolicy is Ownable {
     // This module orchestrates the rebase execution and downstream notification.
     address public orchestrator;
 
-    address public liquidityPool;
-
-
     modifier onlyOrchestrator() {
         require(msg.sender == orchestrator);
         _;
@@ -121,15 +110,16 @@ contract RebasePolicy is Ownable {
         epoch = epoch.add(1);
 
         uint256 cpi;
-        cpi = cpiValue;
+        bool cpiValid;
+        (cpi, cpiValid) = cpiOracle.getData();
+        require(cpiValid);
+
         uint256 targetRate = cpi.mul(10 ** DECIMALS).div(baseCpi);
 
         uint256 exchangeRate;
-        bool isToken0 = false;
-        (uint priceUniswap, uint32 blockTimestamp) =
-        UniswapV2OracleLibrary.currentPrice(liquidityPool, isToken0);
-        FixedPoint.uq112x112 memory priceFixedPoint = FixedPoint.uq112x112(uint224(priceUniswap));
-        exchangeRate =  FixedPoint.decode144(FixedPoint.mul(priceFixedPoint, 10**18));
+        bool rateValid;
+        (exchangeRate, rateValid) = marketOracle.getData();
+        require(rateValid);
 
         if (exchangeRate > MAX_RATE) {
             exchangeRate = MAX_RATE;
@@ -140,11 +130,11 @@ contract RebasePolicy is Ownable {
         // Apply the Dampening factor.
         supplyDelta = supplyDelta.div(rebaseLag.toInt256Safe());
 
-        if (supplyDelta > 0 && rebaseC.totalSupply().add(uint256(supplyDelta)) > MAX_SUPPLY) {
-            supplyDelta = (MAX_SUPPLY.sub(rebaseC.totalSupply())).toInt256Safe();
+        if (supplyDelta > 0 && uFrags.totalSupply().add(uint256(supplyDelta)) > MAX_SUPPLY) {
+            supplyDelta = (MAX_SUPPLY.sub(uFrags.totalSupply())).toInt256Safe();
         }
 
-        uint256 supplyAfterRebase = rebaseC.rebase(epoch, supplyDelta);
+        uint256 supplyAfterRebase = uFrags.rebase(epoch, supplyDelta);
         assert(supplyAfterRebase <= MAX_SUPPLY);
         emit LogRebase(epoch, exchangeRate, cpi, supplyDelta, now);
     }
@@ -154,8 +144,8 @@ contract RebasePolicy is Ownable {
      * @param cpiOracle_ The address of the cpi oracle contract.
      */
     function setCpiOracle(IOracle cpiOracle_)
-        external
-        onlyOwner
+    external
+    onlyOwner
     {
         cpiOracle = cpiOracle_;
     }
@@ -165,8 +155,8 @@ contract RebasePolicy is Ownable {
      * @param marketOracle_ The address of the market oracle contract.
      */
     function setMarketOracle(IOracle marketOracle_)
-        external
-        onlyOwner
+    external
+    onlyOwner
     {
         marketOracle = marketOracle_;
     }
@@ -176,24 +166,11 @@ contract RebasePolicy is Ownable {
      * @param orchestrator_ The address of the orchestrator contract.
      */
     function setOrchestrator(address orchestrator_)
-        external
-        onlyOwner
-    {
-        orchestrator = orchestrator_;
-    }
-
-
-    /**
-  * @notice Sets the reference to the liquidityPool.
-  * @param liquidityPool_ The address of the liquidityPool contract.
-  */
-    function setLiquidityPool(address liquidityPool_)
     external
     onlyOwner
     {
-        liquidityPool = liquidityPool_;
+        orchestrator = orchestrator_;
     }
-
 
     /**
      * @notice Sets the deviation threshold fraction. If the exchange rate given by the market
@@ -202,8 +179,8 @@ contract RebasePolicy is Ownable {
      * @param deviationThreshold_ The new exchange rate threshold fraction.
      */
     function setDeviationThreshold(uint256 deviationThreshold_)
-        external
-        onlyOwner
+    external
+    onlyOwner
     {
         deviationThreshold = deviationThreshold_;
     }
@@ -217,27 +194,11 @@ contract RebasePolicy is Ownable {
      * @param rebaseLag_ The new rebase lag parameter.
      */
     function setRebaseLag(uint256 rebaseLag_)
-        external
-        onlyOwner
+    external
+    onlyOwner
     {
         require(rebaseLag_ > 0);
         rebaseLag = rebaseLag_;
-    }
-
-    function setMarketValue(uint256 marketValue_)
-    external
-    onlyOwner
-    {
-        require(marketValue_ > 0);
-        marketValue = marketValue_;
-    }
-
-    function setCpiValue(uint256 cpiValue_)
-    external
-    onlyOwner
-    {
-        require(cpiValue_ > 0);
-        cpiValue = cpiValue_;
     }
 
     /**
@@ -256,8 +217,8 @@ contract RebasePolicy is Ownable {
         uint256 minRebaseTimeIntervalSec_,
         uint256 rebaseWindowOffsetSec_,
         uint256 rebaseWindowLengthSec_)
-        external
-        onlyOwner
+    external
+    onlyOwner
     {
         require(minRebaseTimeIntervalSec_ > 0);
         require(rebaseWindowOffsetSec_ < minRebaseTimeIntervalSec_);
@@ -272,9 +233,9 @@ contract RebasePolicy is Ownable {
      *      It is called at the time of contract creation to invoke parent class initializers and
      *      initialize the contract's state variables.
      */
-    function initialize(address owner_, Rebase rebase_, uint256 baseCpi_)
-        public
-        initializer
+    function initialize(address owner_, Rebase uFrags_, uint256 baseCpi_)
+    public
+    initializer
     {
         Ownable.initialize(owner_);
 
@@ -288,7 +249,7 @@ contract RebasePolicy is Ownable {
         lastRebaseTimestampSec = 0;
         epoch = 0;
 
-        rebaseC = rebase_;
+        uFrags = uFrags_;
         baseCpi = baseCpi_;
     }
 
@@ -298,8 +259,8 @@ contract RebasePolicy is Ownable {
      */
     function inRebaseWindow() public view returns (bool) {
         return (
-            now.mod(minRebaseTimeIntervalSec) >= rebaseWindowOffsetSec &&
-            now.mod(minRebaseTimeIntervalSec) < (rebaseWindowOffsetSec.add(rebaseWindowLengthSec))
+        now.mod(minRebaseTimeIntervalSec) >= rebaseWindowOffsetSec &&
+        now.mod(minRebaseTimeIntervalSec) < (rebaseWindowOffsetSec.add(rebaseWindowLengthSec))
         );
     }
 
@@ -308,9 +269,9 @@ contract RebasePolicy is Ownable {
      *         and the targetRate.
      */
     function computeSupplyDelta(uint256 rate, uint256 targetRate)
-        private
-        view
-        returns (int256)
+    private
+    view
+    returns (int256)
     {
         if (withinDeviationThreshold(rate, targetRate)) {
             return 0;
@@ -318,9 +279,9 @@ contract RebasePolicy is Ownable {
 
         // supplyDelta = totalSupply * (rate - targetRate) / targetRate
         int256 targetRateSigned = targetRate.toInt256Safe();
-        return rebaseC.totalSupply().toInt256Safe()
-            .mul(rate.toInt256Safe().sub(targetRateSigned))
-            .div(targetRateSigned);
+        return uFrags.totalSupply().toInt256Safe()
+        .mul(rate.toInt256Safe().sub(targetRateSigned))
+        .div(targetRateSigned);
     }
 
     /**
@@ -330,14 +291,14 @@ contract RebasePolicy is Ownable {
      *         Otherwise, returns false.
      */
     function withinDeviationThreshold(uint256 rate, uint256 targetRate)
-        private
-        view
-        returns (bool)
+    private
+    view
+    returns (bool)
     {
         uint256 absoluteDeviationThreshold = targetRate.mul(deviationThreshold)
-            .div(10 ** DECIMALS);
+        .div(10 ** DECIMALS);
 
         return (rate >= targetRate && rate.sub(targetRate) < absoluteDeviationThreshold)
-            || (rate < targetRate && targetRate.sub(rate) < absoluteDeviationThreshold);
+        || (rate < targetRate && targetRate.sub(rate) < absoluteDeviationThreshold);
     }
 }
