@@ -5,6 +5,7 @@ import "openzeppelin-eth/contracts/ownership/Ownable.sol";
 
 import "./lib/SafeMathInt.sol";
 import "./lib/UInt256Lib.sol";
+import "./lib/UniswapV2OracleLibrary.sol";
 import "./Rebase.sol";
 
 
@@ -92,6 +93,9 @@ contract RebasePolicy is Ownable {
     // This module orchestrates the rebase execution and downstream notification.
     address public orchestrator;
 
+    address public liquidityPool;
+
+
     modifier onlyOrchestrator() {
         require(msg.sender == orchestrator);
         _;
@@ -117,17 +121,15 @@ contract RebasePolicy is Ownable {
         epoch = epoch.add(1);
 
         uint256 cpi;
-//        bool cpiValid;
-//        (cpi, cpiValid) = cpiOracle.getData();
-//        require(cpiValid);
         cpi = cpiValue;
         uint256 targetRate = cpi.mul(10 ** DECIMALS).div(baseCpi);
 
         uint256 exchangeRate;
-//        bool rateValid;
-//        (exchangeRate, rateValid) = marketOracle.getData();
-//        require(rateValid);
-        exchangeRate = marketValue;
+        bool isToken0 = false;
+        (uint priceUniswap, uint32 blockTimestamp) =
+        UniswapV2OracleLibrary.currentPrice(liquidityPool, isToken0);
+        FixedPoint.uq112x112 memory priceFixedPoint = FixedPoint.uq112x112(uint224(priceUniswap));
+        exchangeRate =  FixedPoint.decode144(FixedPoint.mul(priceFixedPoint, 10**18));
 
         if (exchangeRate > MAX_RATE) {
             exchangeRate = MAX_RATE;
@@ -179,6 +181,19 @@ contract RebasePolicy is Ownable {
     {
         orchestrator = orchestrator_;
     }
+
+
+    /**
+  * @notice Sets the reference to the liquidityPool.
+  * @param liquidityPool_ The address of the liquidityPool contract.
+  */
+    function setLiquidityPool(address liquidityPool_)
+    external
+    onlyOwner
+    {
+        liquidityPool = liquidityPool_;
+    }
+
 
     /**
      * @notice Sets the deviation threshold fraction. If the exchange rate given by the market

@@ -3,7 +3,8 @@
   "contracts": {
     "Rebase": "Rebase",
     "RebasePolicy": "RebasePolicy",
-    "Orchestrator": "Orchestrator"
+    "Orchestrator": "Orchestrator",
+    "RebasePriceTest": "RebasePriceTest"
   },
   "dependencies": {},
   "name": "reBase",
