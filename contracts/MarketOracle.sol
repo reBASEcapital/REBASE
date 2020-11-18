@@ -10,12 +10,6 @@ import "./lib/FixedPoint.sol";
 import "./Rebase.sol";
 
 
-
-interface IOracle {
-    function getData() external returns (uint256, bool);
-}
-
-
 contract MarketOracle is Ownable {
     using SafeMath for uint256;
     using SafeMathInt for int256;
@@ -31,9 +25,9 @@ contract MarketOracle is Ownable {
     // current biki price
     uint256 public bPrice;
     // last updated biki price time in seconds
-    uint256 public lastBPriceUpdated = 0;
+    uint256 public lastBPriceUpdated;
     // min accepted updated biki time to fetch an average price
-    uint256 public minBPriceTime = 3600;
+    uint256 public minBPriceTime;
 
     uint256 private constant DECIMALS = 18;
     // address for get price in uniswap
@@ -45,12 +39,13 @@ contract MarketOracle is Ownable {
     initializer
     {
         Ownable.initialize(owner_);
+        lastBPriceUpdated = 0;
+        minBPriceTime = 3600;
     }
 
 
     function getUniswapPrice()
-    external
-    onlyOwner
+    public
     returns (uint256)
     {
 
@@ -67,7 +62,6 @@ contract MarketOracle is Ownable {
 
     function getUniswapPriceReverse()
     external
-    onlyOwner
     returns (uint256)
     {
 

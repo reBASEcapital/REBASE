@@ -4,7 +4,9 @@
     "Rebase": "Rebase",
     "RebasePolicy": "RebasePolicy",
     "Orchestrator": "Orchestrator",
-    "RebasePriceTest": "RebasePriceTest"
+    "RebasePriceTest": "RebasePriceTest",
+    "MarketOracle": "MarketOracle",
+    "CPIOracle": "CPIOracle"
   },
   "dependencies": {},
   "name": "reBase",

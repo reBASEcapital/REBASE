@@ -35,7 +35,7 @@ contract RebasePolicy is Ownable {
         uint256 timestampSec
     );
 
-    Rebase public uFrags;
+    Rebase public rebaseC;
 
     // Provides the current CPI, as an 18 decimal fixed point number.
     IOracle public cpiOracle;
@@ -130,11 +130,11 @@ contract RebasePolicy is Ownable {
         // Apply the Dampening factor.
         supplyDelta = supplyDelta.div(rebaseLag.toInt256Safe());
 
-        if (supplyDelta > 0 && uFrags.totalSupply().add(uint256(supplyDelta)) > MAX_SUPPLY) {
-            supplyDelta = (MAX_SUPPLY.sub(uFrags.totalSupply())).toInt256Safe();
+        if (supplyDelta > 0 && rebaseC.totalSupply().add(uint256(supplyDelta)) > MAX_SUPPLY) {
+            supplyDelta = (MAX_SUPPLY.sub(rebaseC.totalSupply())).toInt256Safe();
         }
 
-        uint256 supplyAfterRebase = uFrags.rebase(epoch, supplyDelta);
+        uint256 supplyAfterRebase = rebaseC.rebase(epoch, supplyDelta);
         assert(supplyAfterRebase <= MAX_SUPPLY);
         emit LogRebase(epoch, exchangeRate, cpi, supplyDelta, now);
     }
@@ -233,7 +233,7 @@ contract RebasePolicy is Ownable {
      *      It is called at the time of contract creation to invoke parent class initializers and
      *      initialize the contract's state variables.
      */
-    function initialize(address owner_, Rebase uFrags_, uint256 baseCpi_)
+    function initialize(address owner_, Rebase rebaseC_, uint256 baseCpi_)
     public
     initializer
     {
@@ -249,7 +249,7 @@ contract RebasePolicy is Ownable {
         lastRebaseTimestampSec = 0;
         epoch = 0;
 
-        uFrags = uFrags_;
+        rebaseC = rebaseC_;
         baseCpi = baseCpi_;
     }
 
@@ -279,7 +279,7 @@ contract RebasePolicy is Ownable {
 
         // supplyDelta = totalSupply * (rate - targetRate) / targetRate
         int256 targetRateSigned = targetRate.toInt256Safe();
-        return uFrags.totalSupply().toInt256Safe()
+        return rebaseC.totalSupply().toInt256Safe()
         .mul(rate.toInt256Safe().sub(targetRateSigned))
         .div(targetRateSigned);
     }
