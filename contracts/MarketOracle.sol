@@ -34,6 +34,13 @@ contract MarketOracle is Ownable {
     address public liquidityPool;
 
 
+    uint public constant PERIOD = 24 hours;
+
+    uint[]    public priceCumulativeLast;
+    uint32[]  public blockTimestampLast;
+    uint256[] public priceAverage;
+
+
     function initialize(address owner_)
     public
     initializer
@@ -59,6 +66,47 @@ contract MarketOracle is Ownable {
 
 
     }
+
+    function initializeUniswapTwap()
+    public
+    onlyOwner
+    {
+        bool isToken0 = false;
+        (uint priceCumulative, uint32 blockTimestamp) =
+        UniswapV2OracleLibrary.currentCumulativePrices(liquidityPool, isToken0);
+        uint256 avgIni = getUniswapPrice();
+        if(priceCumulativeLast.length == 0){
+            for (uint i = 0; i < 24; i++) {
+                priceCumulativeLast.push(priceCumulative);
+                blockTimestampLast.push(blockTimestamp);
+                priceAverage.push(avgIni);
+            }
+        } else{
+            for (uint i = 0; i < 24; i++) {
+                priceCumulativeLast[i] = priceCumulative;
+                blockTimestampLast[i] = blockTimestamp;
+                priceAverage[i] = avgIni;
+            }
+        }
+
+    }
+
+
+    function updateUniswapTwap()
+    public
+    returns (uint256)
+    {
+        bool isToken0 = false;
+        (uint priceCumulative, uint32 blockTimestamp) =
+        UniswapV2OracleLibrary.currentCumulativePrices(liquidityPool, isToken0);
+        uint hourRate = uint8((now / 60 / 60) % 24);
+        uint32 timeElapsed = blockTimestamp - blockTimestampLast[hourRate]; // overflow is desired
+        if (timeElapsed >= PERIOD ){
+            priceAverage[hourRate] = FixedPoint.decode144(FixedPoint.mul(FixedPoint.uq112x112(uint224((priceCumulative - priceCumulativeLast[hour]) / timeElapsed)), 10**18));
+        }
+        return priceAverage[hourRate];
+    }
+
 
     function getUniswapPriceReverse()
     external
@@ -101,6 +149,7 @@ contract MarketOracle is Ownable {
     {
         bPrice = data;
         lastBPriceUpdated = now;
+        updateUniswapTwap();
     }
 
     function setMinBPriceTime(uint256 data)
