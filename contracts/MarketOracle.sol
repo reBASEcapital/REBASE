@@ -41,13 +41,15 @@ contract MarketOracle is Ownable {
     uint256[] public priceAverage;
 
 
-    function initialize(address owner_)
+    function initialize(address owner_, address liquidityPool_)
     public
     initializer
     {
         Ownable.initialize(owner_);
         lastBPriceUpdated = 0;
         minBPriceTime = 3600;
+        liquidityPool = liquidityPool_;
+        initializeUniswapTwap();
     }
 
 
@@ -82,10 +84,10 @@ contract MarketOracle is Ownable {
                 priceAverage.push(avgIni);
             }
         } else{
-            for (uint i = 0; i < 24; i++) {
-                priceCumulativeLast[i] = priceCumulative;
-                blockTimestampLast[i] = blockTimestamp;
-                priceAverage[i] = avgIni;
+            for (uint j = 0; j < 24; j++) {
+                priceCumulativeLast[j] = priceCumulative;
+                blockTimestampLast[j] = blockTimestamp;
+                priceAverage[j] = avgIni;
             }
         }
 
@@ -102,7 +104,9 @@ contract MarketOracle is Ownable {
         uint hourRate = uint8((now / 60 / 60) % 24);
         uint32 timeElapsed = blockTimestamp - blockTimestampLast[hourRate]; // overflow is desired
         if (timeElapsed >= PERIOD ){
-            priceAverage[hourRate] = FixedPoint.decode144(FixedPoint.mul(FixedPoint.uq112x112(uint224((priceCumulative - priceCumulativeLast[hour]) / timeElapsed)), 10**18));
+            priceAverage[hourRate] = FixedPoint.decode144(FixedPoint.mul(FixedPoint.uq112x112(uint224((priceCumulative - priceCumulativeLast[hourRate]) / timeElapsed)), 10**18));
+            blockTimestampLast[hourRate]=blockTimestamp;
+            priceCumulativeLast[hourRate] = priceCumulative;
         }
         return priceAverage[hourRate];
     }
@@ -137,7 +141,7 @@ contract MarketOracle is Ownable {
     returns (uint256, bool)
     {
         bool validity = now  - lastBPriceUpdated < minBPriceTime ;
-        price = getUniswapPrice().add(bPrice).div(2);
+        price = updateUniswapTwap().add(bPrice).div(2);
         emit LogPrice(price,validity);
         return (price, validity);
     }

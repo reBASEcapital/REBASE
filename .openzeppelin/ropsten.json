@@ -283,11 +283,11 @@
       }
     },
     "MarketOracle": {
-      "address": "0x148cc254EbB367f272d6E721e8FDb098C42E100B",
-      "constructorCode": "608060405234801561001057600080fd5b50611090806100206000396000f300",
-      "bodyBytecodeHash": "932ef200b5f86a81f5cb48505fcec7594ba9994df378b5c7dd0fb1fbeabb9f6a",
-      "localBytecodeHash": "e0d25b3a451a60a6cdbacbcb915f43bde5ff4b721a9ed0da75c77b750996404f",
-      "deployedBytecodeHash": "e0d25b3a451a60a6cdbacbcb915f43bde5ff4b721a9ed0da75c77b750996404f",
+      "address": "0xA9Dd665aBFA3C4929540084Dc855F94c94a0cb73",
+      "constructorCode": "608060405234801561001057600080fd5b506119eb806100206000396000f300",
+      "bodyBytecodeHash": "10d1dc98012238c7866cfd4a65fd54c2d086a567f01cf658bc14994d15aa853f",
+      "localBytecodeHash": "2aba7fe2d43acba39a9550b2340d90971ad650df28f4376189ae2688664886d4",
+      "deployedBytecodeHash": "2aba7fe2d43acba39a9550b2340d90971ad650df28f4376189ae2688664886d4",
       "types": {
         "t_bool": {
           "id": "t_bool",
@@ -310,6 +310,25 @@
           "id": "t_address",
           "kind": "elementary",
           "label": "address"
+        },
+        "t_array:dyn<t_uint256>": {
+          "id": "t_array:dyn<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "dyn",
+          "kind": "array",
+          "label": "uint256[]"
+        },
+        "t_uint32": {
+          "id": "t_uint32",
+          "kind": "elementary",
+          "label": "uint32"
+        },
+        "t_array:dyn<t_uint32>": {
+          "id": "t_array:dyn<t_uint32>",
+          "valueType": "t_uint32",
+          "length": "dyn",
+          "kind": "array",
+          "label": "uint32[]"
         }
       },
       "storage": [
@@ -317,7 +336,7 @@
           "contract": "Initializable",
           "path": "zos-lib/contracts/Initializable.sol",
           "label": "initialized",
-          "astId": 3595,
+          "astId": 3800,
           "type": "t_bool",
           "src": "757:24:24"
         },
@@ -325,7 +344,7 @@
           "contract": "Initializable",
           "path": "zos-lib/contracts/Initializable.sol",
           "label": "initializing",
-          "astId": 3597,
+          "astId": 3802,
           "type": "t_bool",
           "src": "876:25:24"
         },
@@ -333,7 +352,7 @@
           "contract": "Initializable",
           "path": "zos-lib/contracts/Initializable.sol",
           "label": "______gap",
-          "astId": 3646,
+          "astId": 3851,
           "type": "t_array:50<t_uint256>",
           "src": "1891:29:24"
         },
@@ -341,7 +360,7 @@
           "contract": "Ownable",
           "path": "openzeppelin-eth/contracts/ownership/Ownable.sol",
           "label": "_owner",
-          "astId": 3349,
+          "astId": 3554,
           "type": "t_address",
           "src": "301:22:21"
         },
@@ -349,7 +368,7 @@
           "contract": "Ownable",
           "path": "openzeppelin-eth/contracts/ownership/Ownable.sol",
           "label": "______gap",
-          "astId": 3454,
+          "astId": 3659,
           "type": "t_array:50<t_uint256>",
           "src": "2057:29:21"
         },
@@ -392,6 +411,30 @@
           "astId": 121,
           "type": "t_address",
           "src": "923:28:1"
+        },
+        {
+          "contract": "MarketOracle",
+          "path": "contracts/MarketOracle.sol",
+          "label": "priceCumulativeLast",
+          "astId": 127,
+          "type": "t_array:dyn<t_uint256>",
+          "src": "1004:36:1"
+        },
+        {
+          "contract": "MarketOracle",
+          "path": "contracts/MarketOracle.sol",
+          "label": "blockTimestampLast",
+          "astId": 130,
+          "type": "t_array:dyn<t_uint32>",
+          "src": "1046:35:1"
+        },
+        {
+          "contract": "MarketOracle",
+          "path": "contracts/MarketOracle.sol",
+          "label": "priceAverage",
+          "astId": 133,
+          "type": "t_array:dyn<t_uint256>",
+          "src": "1087:29:1"
         }
       ],
       "warnings": {
@@ -841,6 +884,13 @@
         "address": "0x8d3Fe5D54DC7CF77BdE36e5f1283e8022229dE32",
         "version": "0.0.1",
         "implementation": "0x148cc254EbB367f272d6E721e8FDb098C42E100B",
+        "admin": "0xf672A8c2aBBcc458Ba490c9f41DB715a6D4B5d8e",
+        "kind": "Upgradeable"
+      },
+      {
+        "address": "0x17FD51eE1A497dB5fb69172044805533384Ac55a",
+        "version": "0.0.1",
+        "implementation": "0xA9Dd665aBFA3C4929540084Dc855F94c94a0cb73",
         "admin": "0xf672A8c2aBBcc458Ba490c9f41DB715a6D4B5d8e",
         "kind": "Upgradeable"
       }
