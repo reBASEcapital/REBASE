@@ -24,4 +24,5 @@ coverageEnv/
 .env
 .idea
 .idea/*
-.openzeppelin/.session
+.openzeppelin
+.openzeppelin/*
