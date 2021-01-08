@@ -40,6 +40,10 @@ contract Orchestrator is Ownable {
         policy = RebasePolicy(policy_);
     }
 
+    function claimReward() external {
+         policy.claimReward(msg.sender);
+    }
+
     /**
      * @notice Main entry point to initiate a rebase operation.
      *         The Orchestrator calls rebase on the policy and notifies downstream applications.

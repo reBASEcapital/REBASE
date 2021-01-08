@@ -90,6 +90,9 @@ contract RebasePolicy is Ownable {
         _;
     }
 
+    function claimReward(address to ) external onlyOrchestrator {
+         rebaseC.claimReward(to);
+    }
     /**
      * @notice Initiates a new rebase operation, provided the minimum time period has elapsed.
      *

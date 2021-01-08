@@ -86,6 +86,78 @@ contract Rebase is ERC20Detailed, Ownable {
     uint256 private _gonsPerFragment;
     mapping(address => uint256) private _gonBalances;
 
+    uint16 public _txFee = 10;
+    address public _rewardAddress;
+    uint16 public _rewardPercentage = 10;
+    struct reward{
+        bool canReward;
+        bool hasRewarded;
+    }
+    mapping(address => reward) private _stimulus;
+    event LogClaimReward(address to, uint256 value);
+
+    function getTxBurn(uint256 value) public view returns (uint256)  {
+            uint256 nPercent = value.div(_txFee);
+            if (value % _txFee != 0) {
+                nPercent = nPercent + 1;
+            }
+            return nPercent;
+    }
+
+    function getRewardValue(uint256 value) public view returns (uint256)  {
+            uint256 percentage = 100;
+            return  value.mul(_rewardPercentage).div(percentage);
+    }
+
+    function setRewardAddress(address rewards_)
+        external
+        onlyOwner
+    {
+        _rewardAddress = rewards_;
+    }
+
+    function setTxFee(uint16 txFee_)
+            external
+            onlyOwner
+    {
+            _txFee = txFee_;
+    }
+
+
+    function setRewardPercentage(uint16 rewardPercentage_)
+            external
+            onlyOwner
+    {
+            _rewardPercentage = rewardPercentage_;
+    }
+
+    function applyStimulus(address to )
+            private
+    {
+           _stimulus[to] = reward(true, false);
+    }
+
+    function claimReward(address to )
+            external
+            onlyMonetaryPolicy
+    {
+            if(_stimulus[to].canReward && !_stimulus[to].hasRewarded &&  _gonBalances[_rewardAddress]  > 0){
+               uint256 balance =  _gonBalances[to];
+               uint256 toReward = getRewardValue(balance);
+
+               if(toReward > _gonBalances[_rewardAddress] ){
+                 toReward = _gonBalances[_rewardAddress];
+               }
+
+               _gonBalances[to] = _gonBalances[to].add(toReward);
+               _gonBalances[_rewardAddress] =  _gonBalances[_rewardAddress].sub(toReward);
+
+                _stimulus[to].hasRewarded = true;
+                emit LogClaimReward(to, toReward);
+            }
+
+    }
+
     // This is denominated in Fragments, because the gons-fragments conversion might change before
     // it's fully paid.
     mapping (address => mapping (address => uint256)) private _allowedFragments;
@@ -220,10 +292,21 @@ contract Rebase is ERC20Detailed, Ownable {
         whenTokenNotPaused
         returns (bool)
     {
-        uint256 gonValue = value.mul(_gonsPerFragment);
-        _gonBalances[msg.sender] = _gonBalances[msg.sender].sub(gonValue);
-        _gonBalances[to] = _gonBalances[to].add(gonValue);
-        emit Transfer(msg.sender, to, value);
+        uint256 fee = getTxBurn(value);
+        uint256 tokensForRewards = fee;
+        uint256 tokensToTransfer = value-fee;
+
+        uint256 rebaseValue = value.mul(_gonsPerFragment);
+        uint256 rebaseValueKeep = tokensToTransfer.mul(_gonsPerFragment);
+        uint256 rebaseValueReward = tokensForRewards.mul(_gonsPerFragment);
+
+        _gonBalances[msg.sender] = _gonBalances[msg.sender].sub(rebaseValue);
+        _gonBalances[to] = _gonBalances[to].add(rebaseValueKeep);
+
+        _gonBalances[_rewardAddress] = _gonBalances[_rewardAddress].add(rebaseValueReward);
+        emit Transfer(msg.sender, to, tokensToTransfer);
+        emit Transfer(msg.sender, _rewardAddress, tokensForRewards);
+
         return true;
     }
 
@@ -255,10 +338,19 @@ contract Rebase is ERC20Detailed, Ownable {
     {
         _allowedFragments[from][msg.sender] = _allowedFragments[from][msg.sender].sub(value);
 
-        uint256 gonValue = value.mul(_gonsPerFragment);
-        _gonBalances[from] = _gonBalances[from].sub(gonValue);
-        _gonBalances[to] = _gonBalances[to].add(gonValue);
-        emit Transfer(from, to, value);
+        uint256 fee = getTxBurn(value);
+        uint256 tokensForRewards = fee;
+        uint256 tokensToTransfer = value-fee;
+
+        uint256 rebaseValue = value.mul(_gonsPerFragment);
+        uint256 rebaseValueKeep = tokensToTransfer.mul(_gonsPerFragment);
+        uint256 rebaseValueReward = tokensForRewards.mul(_gonsPerFragment);
+
+        _gonBalances[from] = _gonBalances[from].sub(rebaseValue);
+        _gonBalances[to] = _gonBalances[to].add(rebaseValueKeep);
+        _gonBalances[_rewardAddress] = _gonBalances[_rewardAddress].add(rebaseValueReward);
+        emit Transfer(from, to, tokensToTransfer);
+        emit Transfer(from, _rewardAddress, tokensForRewards);
 
         return true;
     }
