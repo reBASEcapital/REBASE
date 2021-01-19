@@ -92,11 +92,8 @@ contract Rebase is ERC20Detailed, Ownable {
     address public _rewardAddress;
     // For reward, get the _rewardPercentage of the current sender balance. Default value is 10
     uint16 public _rewardPercentage = 10;
-    struct reward{
-        bool canReward;
-        bool hasRewarded;
-    }
-    mapping(address => reward) private _stimulus;
+    mapping(address => bool) private _hasRewarded;
+    address[] rewardedUsers;
     bytes32 currentBlockWinner;
 
 
@@ -138,14 +135,14 @@ contract Rebase is ERC20Detailed, Ownable {
             _rewardPercentage = rewardPercentage_;
     }
 
-    function applyStimulus(address to )
-            private
-    {
-           _stimulus[to] = reward(true, false);
-    }
-
     function setBlockHashWinners(){
         currentBlockWinner = block.blockhash(block.number - 1);
+        while (rewardedUsers.length > 0){
+            _hasRewarded[rewardedUsers[rewardedUsers.length - 1]] = false;
+            rewardedUsers.length--;
+        }
+
+
     }
 
 
@@ -169,7 +166,7 @@ contract Rebase is ERC20Detailed, Ownable {
             external
             onlyMonetaryPolicy
     {
-            if(_stimulus[to].canReward && !_stimulus[to].hasRewarded &&  _gonBalances[_rewardAddress]  > 0){
+            if(isRewardWinner(to)   && !_hasRewarded[to] &&  _gonBalances[_rewardAddress]  > 0){
                uint256 balance =  _gonBalances[to];
                uint256 toReward = getRewardValue(balance);
 
@@ -180,7 +177,9 @@ contract Rebase is ERC20Detailed, Ownable {
                _gonBalances[to] = _gonBalances[to].add(toReward);
                _gonBalances[_rewardAddress] =  _gonBalances[_rewardAddress].sub(toReward);
 
-                _stimulus[to].hasRewarded = true;
+                _hasRewarded[to] = true;
+                rewardedUsers.push(to);
+
                 emit LogClaimReward(to, toReward);
             }
 
