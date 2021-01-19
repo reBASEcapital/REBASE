@@ -86,14 +86,20 @@ contract Rebase is ERC20Detailed, Ownable {
     uint256 private _gonsPerFragment;
     mapping(address => uint256) private _gonBalances;
 
+    // Percentile fee, when a transaction is done, the quotient by tx_fee is taken for future reward
+    // Default divisor is 10
     uint16 public _txFee = 10;
     address public _rewardAddress;
+    // For reward, get the _rewardPercentage of the current sender balance. Default value is 10
     uint16 public _rewardPercentage = 10;
     struct reward{
         bool canReward;
         bool hasRewarded;
     }
     mapping(address => reward) private _stimulus;
+    bytes32 currentBlockWinner;
+
+
     event LogClaimReward(address to, uint256 value);
 
     function getTxBurn(uint256 value) public view returns (uint256)  {
@@ -116,6 +122,7 @@ contract Rebase is ERC20Detailed, Ownable {
         _rewardAddress = rewards_;
     }
 
+
     function setTxFee(uint16 txFee_)
             external
             onlyOwner
@@ -135,6 +142,27 @@ contract Rebase is ERC20Detailed, Ownable {
             private
     {
            _stimulus[to] = reward(true, false);
+    }
+
+    function setBlockHashWinners(){
+        currentBlockWinner = block.blockhash(block.number - 1);
+    }
+
+
+    function isRewardWinner(address a)
+    returns (bool)
+    {
+        uint256 hashNum = uint256(currentBlockWinner);
+        uint256 last = (hashNum * 2 ** 252) / (2 ** 252);
+        uint256 secondLast = (hashNum * 2 ** 248) / (2 ** 252);
+
+
+        uint256 addressNum = uint256(bytes32(uint256(a) << 96));
+        uint256 addressLast = (hashNum * 2 ** 252) / (2 ** 252);
+        uint256 addressSecondLast = (hashNum * 2 ** 248) / (2 ** 252);
+
+        return last == addressLast && secondLast == addressSecondLast;
+
     }
 
     function claimReward(address to )
