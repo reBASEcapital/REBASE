@@ -9,6 +9,7 @@ const _require = require('app-root-path').require;
 const BlockchainCaller = _require('/util/blockchain_caller');
 const chain = new BlockchainCaller(web3);
 const {expectRevert} = require('@openzeppelin/test-helpers');
+const encodeCall = require('zos-lib/lib/helpers/encodeCall').default;
 
 require('chai')
   .use(require('chai-bignumber')(BigNumber))
@@ -24,8 +25,12 @@ async function setupContracts () {
   deployer = accounts[0];
   user = accounts[1];
   mockPolicy = await MockRebasePolicy.new();
-  orchestrator = await Orchestrator.new(mockPolicy.address);
+  orchestrator = await Orchestrator.new();
   mockDownstream = await MockDownstream.new();
+  await orchestrator.sendTransaction({
+    data: encodeCall('initialize', ['address', 'address'], [deployer, mockPolicy.address]),
+    from: deployer
+  });
 }
 
 contract('Orchestrator', function (accounts) {

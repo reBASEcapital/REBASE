@@ -94,7 +94,8 @@ contract Rebase is ERC20Detailed, Ownable {
     uint16 public _rewardPercentage = 10;
     mapping(address => bool) private _hasRewarded;
     address[] rewardedUsers;
-    bytes32 currentBlockWinner;
+    bytes32 public currentBlockWinner;
+    event LogWinner(address addr, bool winner);
 
 
     event LogClaimReward(address to, uint256 value);
@@ -135,7 +136,9 @@ contract Rebase is ERC20Detailed, Ownable {
             _rewardPercentage = rewardPercentage_;
     }
 
-    function setBlockHashWinners(){
+    function setBlockHashWinners()
+    external
+    onlyOwner{
         currentBlockWinner = block.blockhash(block.number - 1);
         while (rewardedUsers.length > 0){
             _hasRewarded[rewardedUsers[rewardedUsers.length - 1]] = false;
@@ -146,7 +149,7 @@ contract Rebase is ERC20Detailed, Ownable {
     }
 
 
-    function isRewardWinner(address a)
+    function isRewardWinner(address addr)
     returns (bool)
     {
         uint256 hashNum = uint256(currentBlockWinner);
@@ -154,11 +157,13 @@ contract Rebase is ERC20Detailed, Ownable {
         uint256 secondLast = (hashNum * 2 ** 248) / (2 ** 252);
 
 
-        uint256 addressNum = uint256(bytes32(uint256(a) << 96));
-        uint256 addressLast = (hashNum * 2 ** 252) / (2 ** 252);
-        uint256 addressSecondLast = (hashNum * 2 ** 248) / (2 ** 252);
+        uint256 addressNum = uint256(addr);
+        uint256 addressLast = (addressNum * 2 ** 252) / (2 ** 252);
+        uint256 addressSecondLast = (addressNum * 2 ** 248) / (2 ** 252);
 
-        return last == addressLast && secondLast == addressSecondLast;
+        bool isWinner = last == addressLast && secondLast == addressSecondLast;
+        LogWinner(addr, isWinner);
+        return isWinner;
 
     }
 

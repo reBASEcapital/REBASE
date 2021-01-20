@@ -123,14 +123,89 @@ contract('Rebase:setMonetaryPolicy:accessControl', function (accounts) {
   });
 });
 
+
+contract('Rebase:setRewardAddress:accessControl', function (accounts) {
+  const rewardAddress = accounts[4];
+
+  before('setup Rebase contract', setupContracts);
+
+  it('should be callable by owner', async function () {
+    expect(
+        await chain.isEthException(reBase.setRewardAddress(rewardAddress, { from: deployer }))
+    ).to.be.false;
+  });
+});
+
+contract('Rebase:setRewardAddress:accessControl', function (accounts) {
+  const rewardAddress = accounts[4];
+  const user = accounts[2];
+
+  before('setup Rebase contract', setupContracts);
+
+  it('should NOT be callable by non-owner', async function () {
+    expect(
+        await chain.isEthException(reBase.setRewardAddress(rewardAddress, { from: user }))
+    ).to.be.true;
+  });
+});
+
+
+contract('Rebase:setBlockHashWinners:accessControl', function (accounts) {
+
+  before('setup Rebase contract', setupContracts);
+
+  it('should be callable by owner', async function () {
+    expect(
+        await chain.isEthException(reBase.setBlockHashWinners( { from: deployer }))
+    ).to.be.false;
+  });
+});
+
+contract('Rebase:setBlockHashWinners:accessControl', function (accounts) {
+  const user = accounts[2];
+
+  before('setup Rebase contract', setupContracts);
+
+  it('should NOT be callable by non-owner', async function () {
+    expect(
+        await chain.isEthException(reBase.setBlockHashWinners( { from: user }))
+    ).to.be.true;
+  });
+});
+
+contract('Rebase:isRewardWinner', function (accounts) {
+  const user = accounts[2];
+
+  before('setup Rebase contract', setupContracts);
+
+  it('should NOT be winner', async function () {
+
+    await  reBase.setBlockHashWinners( { from: deployer})
+    const winner = await  reBase.isRewardWinner( user, { from: deployer });
+    expect(winner.logs[0].args.winner).to.be.false;
+  });
+
+
+  it('should be winner', async function () {
+
+    await  reBase.setBlockHashWinners( { from: deployer})
+    const blockHash  = await reBase.currentBlockWinner.call();
+    const winnerUser = (user+"").slice(0,-2) + (blockHash + "").slice(-2)
+    const winner = await  reBase.isRewardWinner( winnerUser, { from: deployer })
+    expect(winner.logs[0].args.winner).to.be.true;
+  });
+});
+
 contract('Rebase:PauseRebase', function (accounts) {
   const policy = accounts[1];
+  const rewardAddress = accounts[4];
   const A = accounts[2];
   const B = accounts[3];
 
   before('setup Rebase contract', async function () {
     await setupContracts();
     await reBase.setMonetaryPolicy(policy, {from: deployer});
+    await reBase.setRewardAddress(rewardAddress, {from: deployer});
     r = await reBase.setRebasePaused(true);
   });
 
@@ -198,12 +273,14 @@ contract('Rebase:PauseRebase:accessControl', function (accounts) {
 
 contract('Rebase:PauseToken', function (accounts) {
   const policy = accounts[1];
+  const rewardAddress = accounts[5];
   const A = accounts[2];
   const B = accounts[3];
 
   before('setup Rebase contract', async function () {
     await setupContracts();
     await reBase.setMonetaryPolicy(policy, {from: deployer});
+    await reBase.setRewardAddress(rewardAddress, {from: deployer});
     r = await reBase.setTokenPaused(true);
   });
 
@@ -301,11 +378,13 @@ contract('Rebase:Rebase:Expansion', function (accounts) {
   const A = accounts[2];
   const B = accounts[3];
   const policy = accounts[1];
+  const rewardAddress = accounts[5];
   const rebaseAmt = INTIAL_SUPPLY / 10;
 
   before('setup Rebase contract', async function () {
     await setupContracts();
     await reBase.setMonetaryPolicy(policy, {from: deployer});
+    await reBase.setRewardAddress(rewardAddress, {from: deployer});
     await reBase.transfer(A, toUFrgDenomination(10), { from: deployer });
     await reBase.transfer(B, toUFrgDenomination(20), { from: deployer });
     r = await reBase.rebase(1, rebaseAmt, {from: policy});
@@ -318,10 +397,11 @@ contract('Rebase:Rebase:Expansion', function (accounts) {
 
   it('should increase individual balances', async function () {
     b = await reBase.balanceOf.call(A);
-    b.should.be.bignumber.eq(toUFrgDenomination(11));
+    const fee = parseInt( await reBase._txFee.call());
+    b.should.be.bignumber.eq(toUFrgDenomination(11-11/fee));
 
     b = await reBase.balanceOf.call(B);
-    b.should.be.bignumber.eq(toUFrgDenomination(22));
+    b.should.be.bignumber.eq(toUFrgDenomination(22-22/fee));
   });
 
   it('should emit Rebase', async function () {
@@ -342,12 +422,14 @@ contract('Rebase:Rebase:Expansion', function (accounts) {
 
 contract('Rebase:Rebase:Expansion', function (accounts) {
   const policy = accounts[1];
+  const rewardAddress = accounts[5];
   const MAX_SUPPLY = new BigNumber(2).pow(128).minus(1);
 
   describe('when totalSupply is less than MAX_SUPPLY and expands beyond', function () {
     before('setup Rebase contract', async function () {
       await setupContracts();
       await reBase.setMonetaryPolicy(policy, {from: deployer});
+      await reBase.setRewardAddress(rewardAddress, {from: deployer});
       const totalSupply = await reBase.totalSupply.call();
       await reBase.rebase(1, MAX_SUPPLY.minus(totalSupply).minus(toUFrgDenomination(1)), {from: policy});
       r = await reBase.rebase(2, toUFrgDenomination(2), {from: policy});
@@ -394,10 +476,12 @@ contract('Rebase:Rebase:NoChange', function (accounts) {
   const A = accounts[2];
   const B = accounts[3];
   const policy = accounts[1];
+  const rewardAddress = accounts[5];
 
   before('setup Rebase contract', async function () {
     await setupContracts();
     await reBase.setMonetaryPolicy(policy, {from: deployer});
+    await reBase.setRewardAddress(rewardAddress, {from: deployer});
     await reBase.transfer(A, toUFrgDenomination(750), { from: deployer });
     await reBase.transfer(B, toUFrgDenomination(250), { from: deployer });
     r = await reBase.rebase(1, 0, {from: policy});
@@ -410,10 +494,11 @@ contract('Rebase:Rebase:NoChange', function (accounts) {
 
   it('should NOT CHANGE individual balances', async function () {
     b = await reBase.balanceOf.call(A);
-    b.should.be.bignumber.eq(toUFrgDenomination(750));
+    const fee = parseInt( await reBase._txFee.call());
+    b.should.be.bignumber.eq(toUFrgDenomination(750-750/fee));
 
     b = await reBase.balanceOf.call(B);
-    b.should.be.bignumber.eq(toUFrgDenomination(250));
+    b.should.be.bignumber.eq(toUFrgDenomination(250-250/fee));
   });
 
   it('should emit Rebase', async function () {
@@ -430,11 +515,13 @@ contract('Rebase:Rebase:Contraction', function (accounts) {
   const A = accounts[2];
   const B = accounts[3];
   const policy = accounts[1];
+  const rewardAddress = accounts[5];
   const rebaseAmt = INTIAL_SUPPLY / 10;
 
   before('setup Rebase contract', async function () {
     await setupContracts();
     await reBase.setMonetaryPolicy(policy, {from: deployer});
+    await reBase.setRewardAddress(rewardAddress, {from: deployer});
     await reBase.transfer(A, toUFrgDenomination(10), { from: deployer });
     await reBase.transfer(B, toUFrgDenomination(20), { from: deployer });
     r = await reBase.rebase(1, -rebaseAmt, {from: policy});
@@ -446,11 +533,12 @@ contract('Rebase:Rebase:Contraction', function (accounts) {
   });
 
   it('should decrease individual balances', async function () {
+    const fee = parseInt( await reBase._txFee.call());
     b = await reBase.balanceOf.call(A);
-    b.should.be.bignumber.eq(toUFrgDenomination(9));
+    b.should.be.bignumber.eq(toUFrgDenomination(9-9/fee));
 
     b = await reBase.balanceOf.call(B);
-    b.should.be.bignumber.eq(toUFrgDenomination(18));
+    b.should.be.bignumber.eq(toUFrgDenomination(18-18/fee));
   });
 
   it('should emit Rebase', async function () {
@@ -462,47 +550,55 @@ contract('Rebase:Rebase:Contraction', function (accounts) {
   });
 });
 
-contract('Rebase:Transfer', function (accounts) {
+contract('Rebase:Transfer', async function (accounts) {
   const A = accounts[2];
   const B = accounts[3];
   const C = accounts[4];
+  const rewardAddress = accounts[5];
 
   before('setup Rebase contract', setupContracts);
 
+
   describe('deployer transfers 12 to A', function () {
     it('should have correct balances', async function () {
+      const fee = parseInt( await reBase._txFee.call());
+      await reBase.setRewardAddress(rewardAddress, {from: deployer});
       const deployerBefore = await reBase.balanceOf.call(deployer);
       await reBase.transfer(A, toUFrgDenomination(12), { from: deployer });
       b = await reBase.balanceOf.call(deployer);
       b.should.be.bignumber.eq(deployerBefore.minus(toUFrgDenomination(12)));
       b = await reBase.balanceOf.call(A);
-      b.should.be.bignumber.eq(toUFrgDenomination(12));
+      b.should.be.bignumber.eq(toUFrgDenomination(12-12/fee));
     });
   });
 
   describe('deployer transfers 15 to B', async function () {
     it('should have balances [973,15]', async function () {
+      const fee = parseInt( await reBase._txFee.call());
+      await reBase.setRewardAddress(rewardAddress, {from: deployer});
       const deployerBefore = await reBase.balanceOf.call(deployer);
       await reBase.transfer(B, toUFrgDenomination(15), { from: deployer });
       b = await reBase.balanceOf.call(deployer);
       b.should.be.bignumber.eq(deployerBefore.minus(toUFrgDenomination(15)));
       b = await reBase.balanceOf.call(B);
-      b.should.be.bignumber.eq(toUFrgDenomination(15));
+      b.should.be.bignumber.eq(toUFrgDenomination(15-15/fee));
     });
   });
 
   describe('deployer transfers the rest to C', async function () {
     it('should have balances [0,973]', async function () {
+      await reBase.setRewardAddress(rewardAddress, {from: deployer});
+      const fee = parseInt( await reBase._txFee.call());
       const deployerBefore = await reBase.balanceOf.call(deployer);
       await reBase.transfer(C, deployerBefore, { from: deployer });
       b = await reBase.balanceOf.call(deployer);
       b.should.be.bignumber.eq(0);
       b = await reBase.balanceOf.call(C);
-      b.should.be.bignumber.eq(deployerBefore);
+      b.should.be.bignumber.eq(deployerBefore- deployerBefore/fee);
     });
   });
 
-  describe('when the recipient address is the contract address', function () {
+  describe('when the recipient address is the contract address',async  function () {
     const owner = A;
 
     it('reverts on transfer', async function () {
