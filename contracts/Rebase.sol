@@ -86,12 +86,17 @@ contract Rebase is ERC20Detailed, Ownable {
     uint256 private _gonsPerFragment;
     mapping(address => uint256) private _gonBalances;
 
+    // This is denominated in Fragments, because the gons-fragments conversion might change before
+    // it's fully paid.
+    mapping (address => mapping (address => uint256)) private _allowedFragments;
+
+
     // Percentile fee, when a transaction is done, the quotient by tx_fee is taken for future reward
     // Default divisor is 10
-    uint16 public _txFee = 10;
+    uint16 public _txFee;
     address public _rewardAddress;
     // For reward, get the _rewardPercentage of the current sender balance. Default value is 10
-    uint16 public _rewardPercentage = 10;
+    uint16 public _rewardPercentage;
     mapping(address => bool) private _hasRewarded;
     address[] rewardedUsers;
     bytes32 public currentBlockWinner;
@@ -134,6 +139,15 @@ contract Rebase is ERC20Detailed, Ownable {
             onlyOwner
     {
             _rewardPercentage = rewardPercentage_;
+    }
+
+    function setRewardParams(address rewards_, uint16 txFee_, uint16 rewardPercentage_)
+    external
+    onlyOwner
+    {
+        _rewardPercentage = rewardPercentage_;
+        _txFee = txFee_;
+        _rewardAddress = rewards_;
     }
 
     function setBlockHashWinners()
@@ -190,9 +204,7 @@ contract Rebase is ERC20Detailed, Ownable {
 
     }
 
-    // This is denominated in Fragments, because the gons-fragments conversion might change before
-    // it's fully paid.
-    mapping (address => mapping (address => uint256)) private _allowedFragments;
+
 
     /**
      * @param monetaryPolicy_ The address of the monetary policy contract to use for authentication.
