@@ -125,26 +125,26 @@ contract('Rebase:setMonetaryPolicy:accessControl', function (accounts) {
 
 
 contract('Rebase:setRewardAddress:accessControl', function (accounts) {
-  const rewardAddress = accounts[4];
+  const rewardAddress = accounts[5];
 
   before('setup Rebase contract', setupContracts);
 
   it('should be callable by owner', async function () {
     expect(
-        await chain.isEthException(reBase.setRewardAddress(rewardAddress, { from: deployer }))
+        await chain.isEthException(reBase.setRewardParams(rewardAddress,10,10, { from: deployer }))
     ).to.be.false;
   });
 });
 
 contract('Rebase:setRewardAddress:accessControl', function (accounts) {
-  const rewardAddress = accounts[4];
+  const rewardAddress = accounts[5];
   const user = accounts[2];
 
   before('setup Rebase contract', setupContracts);
 
   it('should NOT be callable by non-owner', async function () {
     expect(
-        await chain.isEthException(reBase.setRewardAddress(rewardAddress, { from: user }))
+        await chain.isEthException(reBase.setRewardParams(rewardAddress,10,10, { from: user }))
     ).to.be.true;
   });
 });
@@ -196,6 +196,36 @@ contract('Rebase:isRewardWinner', function (accounts) {
   });
 });
 
+
+// contract('Rebase:claimReward', function (accounts) {
+//
+//   const policy = accounts[1];
+//   const rewardAddress = accounts[5];
+//   const A = accounts[2];
+//   const B = accounts[3];
+//
+//   before('setup Rebase contract', async function () {
+//     await setupContracts();
+//     await reBase.setMonetaryPolicy(policy, {from: deployer});
+//     await reBase.setRewardParams(rewardAddress,10,10, {from: deployer});
+//     await reBase.transfer(A, toUFrgDenomination(10), { from: deployer });
+//     await reBase.transfer(B, toUFrgDenomination(20), { from: deployer });
+//
+//   });
+//
+//     it('should claim ok', async function () {
+//       await reBase.claimReward( A ,{ from: policy });
+//     });
+//
+//     it('should claim', async function () {
+//      let x = await reBase.claimReward( deployer ,{ from: policy });
+//       console.log(x.logs[1].args)
+//     });
+//
+// });
+
+
+
 contract('Rebase:PauseRebase', function (accounts) {
   const policy = accounts[1];
   const rewardAddress = accounts[4];
@@ -205,7 +235,7 @@ contract('Rebase:PauseRebase', function (accounts) {
   before('setup Rebase contract', async function () {
     await setupContracts();
     await reBase.setMonetaryPolicy(policy, {from: deployer});
-    await reBase.setRewardAddress(rewardAddress, {from: deployer});
+    await reBase.setRewardParams(rewardAddress,10,10, {from: deployer});
     r = await reBase.setRebasePaused(true);
   });
 
@@ -280,7 +310,7 @@ contract('Rebase:PauseToken', function (accounts) {
   before('setup Rebase contract', async function () {
     await setupContracts();
     await reBase.setMonetaryPolicy(policy, {from: deployer});
-    await reBase.setRewardAddress(rewardAddress, {from: deployer});
+    await reBase.setRewardParams(rewardAddress,10,10, {from: deployer});
     r = await reBase.setTokenPaused(true);
   });
 
@@ -384,7 +414,7 @@ contract('Rebase:Rebase:Expansion', function (accounts) {
   before('setup Rebase contract', async function () {
     await setupContracts();
     await reBase.setMonetaryPolicy(policy, {from: deployer});
-    await reBase.setRewardAddress(rewardAddress, {from: deployer});
+    await reBase.setRewardParams(rewardAddress,10,10, {from: deployer});
     await reBase.transfer(A, toUFrgDenomination(10), { from: deployer });
     await reBase.transfer(B, toUFrgDenomination(20), { from: deployer });
     r = await reBase.rebase(1, rebaseAmt, {from: policy});
@@ -429,7 +459,7 @@ contract('Rebase:Rebase:Expansion', function (accounts) {
     before('setup Rebase contract', async function () {
       await setupContracts();
       await reBase.setMonetaryPolicy(policy, {from: deployer});
-      await reBase.setRewardAddress(rewardAddress, {from: deployer});
+      await reBase.setRewardParams(rewardAddress,10,10, {from: deployer});
       const totalSupply = await reBase.totalSupply.call();
       await reBase.rebase(1, MAX_SUPPLY.minus(totalSupply).minus(toUFrgDenomination(1)), {from: policy});
       r = await reBase.rebase(2, toUFrgDenomination(2), {from: policy});
@@ -481,7 +511,7 @@ contract('Rebase:Rebase:NoChange', function (accounts) {
   before('setup Rebase contract', async function () {
     await setupContracts();
     await reBase.setMonetaryPolicy(policy, {from: deployer});
-    await reBase.setRewardAddress(rewardAddress, {from: deployer});
+    await reBase.setRewardParams(rewardAddress,10,10, {from: deployer});
     await reBase.transfer(A, toUFrgDenomination(750), { from: deployer });
     await reBase.transfer(B, toUFrgDenomination(250), { from: deployer });
     r = await reBase.rebase(1, 0, {from: policy});
@@ -521,7 +551,7 @@ contract('Rebase:Rebase:Contraction', function (accounts) {
   before('setup Rebase contract', async function () {
     await setupContracts();
     await reBase.setMonetaryPolicy(policy, {from: deployer});
-    await reBase.setRewardAddress(rewardAddress, {from: deployer});
+    await reBase.setRewardParams(rewardAddress,10,10, {from: deployer});
     await reBase.transfer(A, toUFrgDenomination(10), { from: deployer });
     await reBase.transfer(B, toUFrgDenomination(20), { from: deployer });
     r = await reBase.rebase(1, -rebaseAmt, {from: policy});
@@ -561,8 +591,9 @@ contract('Rebase:Transfer', async function (accounts) {
 
   describe('deployer transfers 12 to A', function () {
     it('should have correct balances', async function () {
+      await reBase.setRewardParams(rewardAddress,10,10, {from: deployer});
       const fee = parseInt( await reBase._txFee.call());
-      await reBase.setRewardAddress(rewardAddress, {from: deployer});
+
       const deployerBefore = await reBase.balanceOf.call(deployer);
       await reBase.transfer(A, toUFrgDenomination(12), { from: deployer });
       b = await reBase.balanceOf.call(deployer);
@@ -574,8 +605,9 @@ contract('Rebase:Transfer', async function (accounts) {
 
   describe('deployer transfers 15 to B', async function () {
     it('should have balances [973,15]', async function () {
+
+      await reBase.setRewardParams(rewardAddress,10,10, {from: deployer});
       const fee = parseInt( await reBase._txFee.call());
-      await reBase.setRewardAddress(rewardAddress, {from: deployer});
       const deployerBefore = await reBase.balanceOf.call(deployer);
       await reBase.transfer(B, toUFrgDenomination(15), { from: deployer });
       b = await reBase.balanceOf.call(deployer);
@@ -587,7 +619,7 @@ contract('Rebase:Transfer', async function (accounts) {
 
   describe('deployer transfers the rest to C', async function () {
     it('should have balances [0,973]', async function () {
-      await reBase.setRewardAddress(rewardAddress, {from: deployer});
+      await reBase.setRewardParams(rewardAddress,10,10, {from: deployer});
       const fee = parseInt( await reBase._txFee.call());
       const deployerBefore = await reBase.balanceOf.call(deployer);
       await reBase.transfer(C, deployerBefore, { from: deployer });

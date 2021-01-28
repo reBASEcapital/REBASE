@@ -90,8 +90,10 @@ contract('Rebase:ERC20', function (accounts) {
 });
 
 contract('Rebase:ERC20:transfer', function (accounts) {
+  const rewardAddress = accounts[5];
   before('setup Rebase contract', async function () {
     await setupContractAndAccounts(accounts);
+    await token.setRewardParams(rewardAddress,10,10, {from: owner});
   });
 
   describe('when the sender does NOT have enough balance', function () {
@@ -108,6 +110,7 @@ contract('Rebase:ERC20:transfer', function (accounts) {
     });
 
     it('should transfer the requested amount', async function () {
+
       const fee = parseInt( await token._txFee.call());
       const senderBalance = await token.balanceOf.call(owner);
       const recipientBalance = await token.balanceOf.call(recipient);
@@ -135,8 +138,10 @@ contract('Rebase:ERC20:transfer', function (accounts) {
 });
 
 contract('Rebase:ERC20:transferFrom', function (accounts) {
+  const rewardAddress = accounts[5];
   before('setup Rebase contract', async function () {
     await setupContractAndAccounts(accounts);
+    await token.setRewardParams(rewardAddress,10,10, {from: owner});
   });
 
   describe('when the spender does NOT have enough approved balance', function () {
