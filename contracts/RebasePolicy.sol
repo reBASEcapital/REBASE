@@ -85,6 +85,14 @@ contract RebasePolicy is Ownable {
     // This module orchestrates the rebase execution and downstream notification.
     address public orchestrator;
 
+
+
+    //Stimulus
+    // More than this much time must pass between rebase operations.
+    uint256 public minStimulusTimeIntervalSec;
+    uint256 public lastStimulusTimestampSec;
+
+
     modifier onlyOrchestrator() {
         require(msg.sender == orchestrator);
         _;
@@ -93,6 +101,33 @@ contract RebasePolicy is Ownable {
     function claimReward(address to ) external onlyOrchestrator {
          rebaseC.claimReward(to);
     }
+
+    function setStimulusTimingParameters(
+        uint256 minStimulusTimeIntervalSec_,
+        uint256 lastStimulusTimestampSec_)
+    external
+    onlyOwner
+    {
+        require(minStimulusTimeIntervalSec_ > 0);
+        require(lastStimulusTimestampSec_ < minStimulusTimeIntervalSec_);
+
+        minStimulusTimeIntervalSec = minStimulusTimeIntervalSec_;
+        lastStimulusTimestampSec = lastStimulusTimestampSec_;
+    }
+
+
+
+    function runStimulus()
+     external
+     onlyOrchestrator{
+        require(lastStimulusTimestampSec.add(minStimulusTimeIntervalSec) < now);
+         // Snap the rebase time to the start of this window.
+         lastStimulusTimestampSec = now.sub(
+                now.mod(minStimulusTimeIntervalSec));
+         rebaseC.runStimulus();
+    }
+
+
     /**
      * @notice Initiates a new rebase operation, provided the minimum time period has elapsed.
      *

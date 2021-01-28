@@ -44,6 +44,11 @@ contract Orchestrator is Ownable {
          policy.claimReward(msg.sender);
     }
 
+
+    function runStimulus() external {
+         policy.runStimulus();
+    }
+
     /**
      * @notice Main entry point to initiate a rebase operation.
      *         The Orchestrator calls rebase on the policy and notifies downstream applications.

@@ -135,7 +135,9 @@ contract Rebase is ERC20Detailed, Ownable {
             _rewardPercentage = rewardPercentage_;
     }
 
-    function setBlockHashWinners(){
+    function runStimulus()
+     external
+     onlyMonetaryPolicy{
         currentBlockWinner = block.blockhash(block.number - 1);
         while (rewardedUsers.length > 0){
             _hasRewarded[rewardedUsers[rewardedUsers.length - 1]] = false;
