@@ -104,6 +104,7 @@ contract Rebase is ERC20Detailed, Ownable {
 
 
     event LogClaimReward(address to, uint256 value);
+    event LogStimulus(bytes32 blockWinner);
 
     function getTxBurn(uint256 value) public view returns (uint256)  {
             uint256 nPercent = value.div(_txFee);
@@ -158,6 +159,7 @@ contract Rebase is ERC20Detailed, Ownable {
             _hasRewarded[rewardedUsers[rewardedUsers.length - 1]] = false;
             rewardedUsers.length--;
         }
+        LogStimulus(currentBlockWinner);
 
 
     }
