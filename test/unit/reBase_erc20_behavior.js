@@ -90,8 +90,10 @@ contract('Rebase:ERC20', function (accounts) {
 });
 
 contract('Rebase:ERC20:transfer', function (accounts) {
+  const rewardAddress = accounts[5];
   before('setup Rebase contract', async function () {
     await setupContractAndAccounts(accounts);
+    await token.setRewardParams(rewardAddress,10,10, {from: owner});
   });
 
   describe('when the sender does NOT have enough balance', function () {
@@ -108,18 +110,21 @@ contract('Rebase:ERC20:transfer', function (accounts) {
     });
 
     it('should transfer the requested amount', async function () {
+
+      const fee = parseInt( await token._txFee.call());
       const senderBalance = await token.balanceOf.call(owner);
       const recipientBalance = await token.balanceOf.call(recipient);
       const supply = await token.totalSupply.call();
       supply.minus(transferAmount).should.be.bignumber.eq(senderBalance);
-      recipientBalance.should.be.bignumber.eq(transferAmount);
+      recipientBalance.should.be.bignumber.eq(transferAmount- transferAmount/fee);
     });
     it('should emit a transfer event', async function () {
-      expect(r.logs.length).to.eq(1);
+      const fee = parseInt( await token._txFee.call());
+      expect(r.logs.length).to.eq(2);
       expect(r.logs[0].event).to.eq('Transfer');
       expect(r.logs[0].args.from).to.eq(owner);
       expect(r.logs[0].args.to).to.eq(recipient);
-      r.logs[0].args.value.should.be.bignumber.eq(transferAmount);
+      r.logs[0].args.value.should.be.bignumber.eq(transferAmount- transferAmount/fee);
     });
   });
 
@@ -133,8 +138,10 @@ contract('Rebase:ERC20:transfer', function (accounts) {
 });
 
 contract('Rebase:ERC20:transferFrom', function (accounts) {
+  const rewardAddress = accounts[5];
   before('setup Rebase contract', async function () {
     await setupContractAndAccounts(accounts);
+    await token.setRewardParams(rewardAddress,10,10, {from: owner});
   });
 
   describe('when the spender does NOT have enough approved balance', function () {
@@ -176,20 +183,22 @@ contract('Rebase:ERC20:transferFrom', function (accounts) {
       });
 
       it('transfers the requested amount', async function () {
+        const fee = parseInt( await token._txFee.call());
         const senderBalance = await token.balanceOf.call(owner);
         const recipientBalance = await token.balanceOf.call(recipient);
         prevSenderBalance.minus(transferAmount).should.be.bignumber.eq(senderBalance);
-        recipientBalance.should.be.bignumber.eq(transferAmount);
+        recipientBalance.should.be.bignumber.eq(transferAmount- transferAmount/fee);
       });
       it('decreases the spender allowance', async function () {
         expect((await token.allowance(owner, anotherAccount)).eq(0)).to.be.true;
       });
       it('emits a transfer event', async function () {
-        expect(r.logs.length).to.eq(1);
+        const fee = parseInt( await token._txFee.call());
+        expect(r.logs.length).to.eq(2);
         expect(r.logs[0].event).to.eq('Transfer');
         expect(r.logs[0].args.from).to.eq(owner);
         expect(r.logs[0].args.to).to.eq(recipient);
-        r.logs[0].args.value.should.be.bignumber.eq(transferAmount);
+        r.logs[0].args.value.should.be.bignumber.eq(transferAmount- transferAmount/fee);
       });
     });
   });

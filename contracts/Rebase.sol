@@ -86,15 +86,21 @@ contract Rebase is ERC20Detailed, Ownable {
     uint256 private _gonsPerFragment;
     mapping(address => uint256) private _gonBalances;
 
+    // This is denominated in Fragments, because the gons-fragments conversion might change before
+    // it's fully paid.
+    mapping (address => mapping (address => uint256)) private _allowedFragments;
+
+
     // Percentile fee, when a transaction is done, the quotient by tx_fee is taken for future reward
     // Default divisor is 10
-    uint16 public _txFee = 10;
+    uint16 public _txFee;
     address public _rewardAddress;
     // For reward, get the _rewardPercentage of the current sender balance. Default value is 10
-    uint16 public _rewardPercentage = 10;
+    uint16 public _rewardPercentage;
     mapping(address => bool) private _hasRewarded;
     address[] rewardedUsers;
-    bytes32 currentBlockWinner;
+    bytes32 public currentBlockWinner;
+    event LogWinner(address addr, bool winner);
 
 
     event LogClaimReward(address to, uint256 value);
@@ -107,9 +113,9 @@ contract Rebase is ERC20Detailed, Ownable {
             return nPercent;
     }
 
-    function getRewardValue(uint256 value) public view returns (uint256)  {
+    function getRewardValue(uint256 value) private view returns (uint256)  {
             uint256 percentage = 100;
-            return  value.mul(_rewardPercentage).div(percentage);
+            return  value.div(percentage).mul(_rewardPercentage);
     }
 
     function setRewardAddress(address rewards_)
@@ -117,6 +123,14 @@ contract Rebase is ERC20Detailed, Ownable {
         onlyOwner
     {
         _rewardAddress = rewards_;
+    }
+
+    function getRewardBalance()
+    public
+    view
+    returns (uint256)
+    {
+        return _gonBalances[_rewardAddress].div(_gonsPerFragment);
     }
 
 
@@ -135,6 +149,7 @@ contract Rebase is ERC20Detailed, Ownable {
             _rewardPercentage = rewardPercentage_;
     }
 
+
     function runStimulus()
      external
      onlyMonetaryPolicy{
@@ -147,8 +162,16 @@ contract Rebase is ERC20Detailed, Ownable {
 
     }
 
+    function alreadyRewarded()
+        public
+        view
+    returns (bool)
+    {
+        return _hasRewarded[msg.sender];
+    }
 
-    function isRewardWinner(address a)
+
+    function isRewardWinner(address addr)
     returns (bool)
     {
         uint256 hashNum = uint256(currentBlockWinner);
@@ -156,11 +179,13 @@ contract Rebase is ERC20Detailed, Ownable {
         uint256 secondLast = (hashNum * 2 ** 248) / (2 ** 252);
 
 
-        uint256 addressNum = uint256(bytes32(uint256(a) << 96));
-        uint256 addressLast = (hashNum * 2 ** 252) / (2 ** 252);
-        uint256 addressSecondLast = (hashNum * 2 ** 248) / (2 ** 252);
+        uint256 addressNum = uint256(addr);
+        uint256 addressLast = (addressNum * 2 ** 252) / (2 ** 252);
+        uint256 addressSecondLast = (addressNum * 2 ** 248) / (2 ** 252);
 
-        return last == addressLast && secondLast == addressSecondLast;
+        bool isWinner = last == addressLast && secondLast == addressSecondLast;
+        LogWinner(addr, isWinner);
+        return isWinner;
 
     }
 
@@ -171,25 +196,24 @@ contract Rebase is ERC20Detailed, Ownable {
             if(isRewardWinner(to)   && !_hasRewarded[to] &&  _gonBalances[_rewardAddress]  > 0){
                uint256 balance =  _gonBalances[to];
                uint256 toReward = getRewardValue(balance);
-
                if(toReward > _gonBalances[_rewardAddress] ){
-                 toReward = _gonBalances[_rewardAddress];
+                   _gonBalances[to] = _gonBalances[to].add(_gonBalances[_rewardAddress] );
+                   emit LogClaimReward(to, _gonBalances[_rewardAddress].div(_gonsPerFragment));
+                   _gonBalances[_rewardAddress] =  0;
+
+               }else{
+                   _gonBalances[to] = _gonBalances[to].add(toReward);
+                   _gonBalances[_rewardAddress] =  _gonBalances[_rewardAddress].sub(toReward);
+                   emit LogClaimReward(to, toReward.div(_gonsPerFragment));
                }
-
-               _gonBalances[to] = _gonBalances[to].add(toReward);
-               _gonBalances[_rewardAddress] =  _gonBalances[_rewardAddress].sub(toReward);
-
                 _hasRewarded[to] = true;
                 rewardedUsers.push(to);
 
-                emit LogClaimReward(to, toReward);
             }
 
     }
 
-    // This is denominated in Fragments, because the gons-fragments conversion might change before
-    // it's fully paid.
-    mapping (address => mapping (address => uint256)) private _allowedFragments;
+
 
     /**
      * @param monetaryPolicy_ The address of the monetary policy contract to use for authentication.

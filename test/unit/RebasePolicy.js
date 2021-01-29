@@ -55,8 +55,6 @@ async function setupContractsWithOpenRebaseWindow () {
 }
 
 async function mockExternalData (rate, cpi, uFragSupply, rateValidity = true, cpiValidity = true) {
-  await reBasePolicy.setMarketValue(rate);
-  await reBasePolicy.setCpiValue(cpi);
   await mockMarketOracle.storeData(rate);
   await mockMarketOracle.storeValidity(rateValidity);
   await mockCpiOracle.storeData(cpi);
@@ -100,7 +98,7 @@ contract('RebasePolicy:initialize', async function (accounts) {
       expect(await reBasePolicy.owner.call()).to.eq(deployer);
     });
     it('should set reference to reBase', async function () {
-      expect(await reBasePolicy.uFrags.call()).to.eq(mockRebase.address);
+      expect(await reBasePolicy.rebaseC.call()).to.eq(mockRebase.address);
     });
   });
 });
