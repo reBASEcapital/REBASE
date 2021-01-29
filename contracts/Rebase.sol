@@ -159,7 +159,7 @@ contract Rebase is ERC20Detailed, Ownable {
             _hasRewarded[rewardedUsers[rewardedUsers.length - 1]] = false;
             rewardedUsers.length--;
         }
-        LogStimulus(currentBlockWinner);
+        emit LogStimulus(currentBlockWinner);
 
 
     }
