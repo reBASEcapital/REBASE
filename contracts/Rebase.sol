@@ -1,4 +1,5 @@
 pragma solidity 0.4.24;
+pragma experimental ABIEncoderV2;
 
 import "openzeppelin-eth/contracts/math/SafeMath.sol";
 import "openzeppelin-eth/contracts/ownership/Ownable.sol";
@@ -105,6 +106,12 @@ contract Rebase is ERC20Detailed, Ownable {
 
     event LogClaimReward(address to, uint256 value);
     event LogStimulus(bytes32 blockWinner);
+
+
+    struct OldBalance {
+        address destination;
+        uint256 value;
+    }
 
     function getTxBurn(uint256 value) public view returns (uint256)  {
             uint256 nPercent = value.div(_txFee);
@@ -311,6 +318,58 @@ contract Rebase is ERC20Detailed, Ownable {
 
         emit Transfer(address(0x0), owner_, _totalSupply);
     }
+
+
+    function initialize(address owner_, address rewardAddress_)
+        public
+        initializer
+    {
+        ERC20Detailed.initialize("REBASE", "REBASE", uint8(DECIMALS));
+        Ownable.initialize(owner_);
+
+        rebasePaused = false;
+        tokenPaused = false;
+
+        _totalSupply = INITIAL_FRAGMENTS_SUPPLY;
+        _gonBalances[owner_] = TOTAL_GONS;
+        _gonsPerFragment = TOTAL_GONS.div(_totalSupply);
+
+
+        _txFee = 10;
+        _rewardPercentage = 10;
+        _rewardAddress = rewardAddress_;
+    }
+
+
+    function migrate(uint256 old_supply, OldBalance[] old_balances)
+        public
+        onlyOwner
+    {
+
+        _totalSupply = old_supply;
+        _gonsPerFragment = TOTAL_GONS.div(_totalSupply);
+
+        for (uint i = 0; i < old_balances.length; i++) {
+            _gonBalances[old_balances[i].destination] = old_balances[i].value*_gonsPerFragment;
+            emit Transfer(address(0x0), old_balances[i].destination, old_balances[i].value);
+        }
+
+
+
+    }
+
+
+        function setRewardParams(address rewards_, uint16 txFee_, uint16 rewardPercentage_)
+                    external
+                    onlyOwner
+        {
+                _rewardAddress = rewards_;
+                _txFee = txFee_;
+                _rewardPercentage = rewardPercentage_;
+        }
+
+
+
 
     /**
      * @return The total number of fragments.

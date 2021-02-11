@@ -39,7 +39,7 @@
     "husky": "^4.3.0",
     "js-yaml": "^3.13.1",
     "openzeppelin-eth": "2.0.2",
-    "truffle": "4.1.14"
+    "truffle": "5.1.55"
   },
   "devDependencies": {
     "@openzeppelin/test-environment": "^0.1.2",

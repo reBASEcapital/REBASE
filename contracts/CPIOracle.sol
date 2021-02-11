@@ -24,12 +24,12 @@ contract CPIOracle is Ownable {
     uint256 private constant DECIMALS = 18;
 
 
-    function initialize(address owner_)
+    function initialize(address owner_, uint256 cpi_)
     public
     initializer
     {
         Ownable.initialize(owner_);
-        cpi = 0;
+        cpi = cpi_;
     }
 
 

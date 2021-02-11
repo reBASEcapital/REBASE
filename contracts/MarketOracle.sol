@@ -35,15 +35,15 @@ contract MarketOracle is Ownable {
     uint public constant PERIOD = 24 hours;
 
 
-    function initialize(address owner_, address liquidityPool_)
+    function initialize(address owner_, uint256 price_)
     public
     initializer
     {
         Ownable.initialize(owner_);
         lastPriceUpdated = 0;
-        minPriceTime = 3600;
-        liquidityPool = liquidityPool_;
+        minPriceTime = 86400;
         priceUpdater = owner_;
+        price = price_;
     }
 
     address public priceUpdater;

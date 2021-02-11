@@ -280,12 +280,15 @@ contract RebasePolicy is Ownable {
         // deviationThreshold = 0.05e18 = 5e16
         deviationThreshold = 5 * 10 ** (DECIMALS-2);
 
-        rebaseLag = 30;
+        rebaseLag = 10;
         minRebaseTimeIntervalSec = 1 days;
-        rebaseWindowOffsetSec = 72000;  // 8PM UTC
-        rebaseWindowLengthSec = 15 minutes;
+        rebaseWindowOffsetSec = 0;  // 8PM UTC
+        rebaseWindowLengthSec = 86399;
         lastRebaseTimestampSec = 0;
         epoch = 0;
+
+        minStimulusTimeIntervalSec = 1 days;
+        lastStimulusTimestampSec = 0;
 
         rebaseC = rebaseC_;
         baseCpi = baseCpi_;
