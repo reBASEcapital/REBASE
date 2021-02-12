@@ -15,7 +15,7 @@ module.exports = {
       network_id: 3,
       gas: 4000000,
       gasPrice: 20000000000
-    }  ,
+    },
     bsc: {
       provider: () => new HDWalletProvider(process.env.MNENOMIC, 'https://data-seed-prebsc-1-s1.binance.org:8545'),
       network_id: 97,

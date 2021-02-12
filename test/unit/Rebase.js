@@ -176,7 +176,7 @@ contract('Rebase:isRewardWinner', function (accounts) {
   before('setup Rebase contract', setupContracts);
 
   it('should NOT be winner', async function () {
-    await reBase.setBlockHashWinners( { from: deployer});
+    await reBase.setBlockHashWinners({ from: deployer});
     const winner = await reBase.isRewardWinner(user, { from: deployer });
     expect(winner.logs[0].args.winner).to.be.false;
   });

@@ -26,3 +26,4 @@ coverageEnv/
 .idea/*
 .openzeppelin
 .openzeppelin/*
+*Flattern.sol
