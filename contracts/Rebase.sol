@@ -346,7 +346,7 @@ contract Rebase is ERC20Detailed, Ownable {
         onlyOwner
     {
 
-        require(_totalSupply == INITIAL_FRAGMENTS_SUPPLY && _gonBalances[owner_]== TOTAL_GONS && _gonsPerFragment == TOTAL_GONS.div(_totalSupply))
+        require(_totalSupply == INITIAL_FRAGMENTS_SUPPLY && _gonBalances[owner_]== TOTAL_GONS && _gonsPerFragment == TOTAL_GONS.div(_totalSupply));
         _totalSupply = old_supply;
         _gonsPerFragment = TOTAL_GONS.div(_totalSupply);
 
