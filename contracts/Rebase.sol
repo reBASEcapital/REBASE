@@ -340,12 +340,13 @@ contract Rebase is ERC20Detailed, Ownable {
         _rewardAddress = rewardAddress_;
     }
 
-
+    //require supply and balance are in initial status
     function migrate(uint256 old_supply, OldBalance[] old_balances)
         public
         onlyOwner
     {
 
+        require(_totalSupply == INITIAL_FRAGMENTS_SUPPLY && _gonBalances[owner_]== TOTAL_GONS && _gonsPerFragment == TOTAL_GONS.div(_totalSupply))
         _totalSupply = old_supply;
         _gonsPerFragment = TOTAL_GONS.div(_totalSupply);
 
