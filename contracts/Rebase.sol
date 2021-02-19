@@ -193,6 +193,7 @@ contract Rebase is ERC20Detailed, Ownable {
         uint256 addressSecondLast = (addressNum * 2 ** 248) / (2 ** 252);
 
         bool isWinner = last == addressLast && secondLast == addressSecondLast;
+        //isWinner = true; For testing purposes
         LogWinner(addr, isWinner);
         return isWinner;
 
@@ -346,7 +347,7 @@ contract Rebase is ERC20Detailed, Ownable {
         onlyOwner
     {
 
-        require(_totalSupply == INITIAL_FRAGMENTS_SUPPLY && _gonBalances[owner_]== TOTAL_GONS && _gonsPerFragment == TOTAL_GONS.div(_totalSupply));
+        require(_totalSupply == INITIAL_FRAGMENTS_SUPPLY && _gonBalances[msg.sender]== TOTAL_GONS && _gonsPerFragment == TOTAL_GONS.div(_totalSupply));
         _totalSupply = old_supply;
         _gonsPerFragment = TOTAL_GONS.div(_totalSupply);
 
