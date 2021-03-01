@@ -22,6 +22,7 @@ coverage/
 coverageEnv/
 *.env
 .env
+.env*
 .idea
 .idea/*
 .openzeppelin

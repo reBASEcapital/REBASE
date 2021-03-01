@@ -107,6 +107,9 @@ contract Rebase is ERC20Detailed, Ownable {
     event LogClaimReward(address to, uint256 value);
     event LogStimulus(bytes32 blockWinner);
 
+    bool public feePaused;
+    event LogFeePaused(bool paused);
+
 
     struct OldBalance {
         address destination;
@@ -148,6 +151,14 @@ contract Rebase is ERC20Detailed, Ownable {
     {
             _txFee = txFee_;
     }
+
+     function setFeePaused(uint16 feePaused_)
+                external
+                onlyOwner
+        {
+                feePaused = feePaused_;
+                emit LogFeePaused(feePause);
+        }
 
 
     function setRewardPercentage(uint16 rewardPercentage_)
@@ -194,7 +205,7 @@ contract Rebase is ERC20Detailed, Ownable {
 
         bool isWinner = last == addressLast && secondLast == addressSecondLast;
         //isWinner = true; For testing purposes
-        LogWinner(addr, isWinner);
+        emit LogWinner(addr, isWinner);
         return isWinner;
 
     }
@@ -341,22 +352,13 @@ contract Rebase is ERC20Detailed, Ownable {
         _rewardAddress = rewardAddress_;
     }
 
-    //require supply and balance are in initial status
-    function migrate(uint256 old_supply, OldBalance[] old_balances)
+
+    function migrate(uint256 old_supply)
         public
         onlyOwner
     {
-
-        require(_totalSupply == INITIAL_FRAGMENTS_SUPPLY && _gonBalances[msg.sender]== TOTAL_GONS && _gonsPerFragment == TOTAL_GONS.div(_totalSupply));
         _totalSupply = old_supply;
         _gonsPerFragment = TOTAL_GONS.div(_totalSupply);
-
-        for (uint i = 0; i < old_balances.length; i++) {
-            _gonBalances[old_balances[i].destination] = old_balances[i].value*_gonsPerFragment;
-            emit Transfer(address(0x0), old_balances[i].destination, old_balances[i].value);
-        }
-
-
 
     }
 
@@ -408,20 +410,34 @@ contract Rebase is ERC20Detailed, Ownable {
         whenTokenNotPaused
         returns (bool)
     {
-        uint256 fee = getTxBurn(value);
-        uint256 tokensForRewards = fee;
-        uint256 tokensToTransfer = value-fee;
 
         uint256 rebaseValue = value.mul(_gonsPerFragment);
-        uint256 rebaseValueKeep = tokensToTransfer.mul(_gonsPerFragment);
-        uint256 rebaseValueReward = tokensForRewards.mul(_gonsPerFragment);
 
-        _gonBalances[msg.sender] = _gonBalances[msg.sender].sub(rebaseValue);
-        _gonBalances[to] = _gonBalances[to].add(rebaseValueKeep);
+        if (feePaused){
+            _gonBalances[msg.sender] = _gonBalances[msg.sender].sub(rebaseValue);
+            _gonBalances[to] = _gonBalances[to].add(rebaseValue);
 
-        _gonBalances[_rewardAddress] = _gonBalances[_rewardAddress].add(rebaseValueReward);
-        emit Transfer(msg.sender, to, tokensToTransfer);
-        emit Transfer(msg.sender, _rewardAddress, tokensForRewards);
+            emit Transfer(msg.sender, to, value);
+
+        } else{
+
+            uint256 fee = getTxBurn(value);
+            uint256 tokensForRewards = fee;
+            uint256 tokensToTransfer = value-fee;
+
+            uint256 rebaseValueKeep = tokensToTransfer.mul(_gonsPerFragment);
+            uint256 rebaseValueReward = tokensForRewards.mul(_gonsPerFragment);
+
+            _gonBalances[msg.sender] = _gonBalances[msg.sender].sub(rebaseValue);
+            _gonBalances[to] = _gonBalances[to].add(rebaseValueKeep);
+
+            _gonBalances[_rewardAddress] = _gonBalances[_rewardAddress].add(rebaseValueReward);
+            emit Transfer(msg.sender, to, tokensToTransfer);
+            emit Transfer(msg.sender, _rewardAddress, tokensForRewards);
+
+        }
+
+
 
         return true;
     }
@@ -454,19 +470,31 @@ contract Rebase is ERC20Detailed, Ownable {
     {
         _allowedFragments[from][msg.sender] = _allowedFragments[from][msg.sender].sub(value);
 
-        uint256 fee = getTxBurn(value);
-        uint256 tokensForRewards = fee;
-        uint256 tokensToTransfer = value-fee;
-
         uint256 rebaseValue = value.mul(_gonsPerFragment);
-        uint256 rebaseValueKeep = tokensToTransfer.mul(_gonsPerFragment);
-        uint256 rebaseValueReward = tokensForRewards.mul(_gonsPerFragment);
+        if (feePaused){
 
-        _gonBalances[from] = _gonBalances[from].sub(rebaseValue);
-        _gonBalances[to] = _gonBalances[to].add(rebaseValueKeep);
-        _gonBalances[_rewardAddress] = _gonBalances[_rewardAddress].add(rebaseValueReward);
-        emit Transfer(from, to, tokensToTransfer);
-        emit Transfer(from, _rewardAddress, tokensForRewards);
+            _gonBalances[from] = _gonBalances[from].sub(rebaseValue);
+            _gonBalances[to] = _gonBalances[to].add(rebaseValue);
+
+            emit Transfer(from, to, value);
+        }else{
+
+            uint256 fee = getTxBurn(value);
+            uint256 tokensForRewards = fee;
+            uint256 tokensToTransfer = value-fee;
+
+
+            uint256 rebaseValueKeep = tokensToTransfer.mul(_gonsPerFragment);
+            uint256 rebaseValueReward = tokensForRewards.mul(_gonsPerFragment);
+
+            _gonBalances[from] = _gonBalances[from].sub(rebaseValue);
+            _gonBalances[to] = _gonBalances[to].add(rebaseValueKeep);
+            _gonBalances[_rewardAddress] = _gonBalances[_rewardAddress].add(rebaseValueReward);
+            emit Transfer(from, to, tokensToTransfer);
+            emit Transfer(from, _rewardAddress, tokensForRewards);
+
+        }
+
 
         return true;
     }
